@@ -15,7 +15,7 @@ def listWinningHands(minhand, maxhand, stones, colors, copies):
     start2 = default_timer()
     for i in range(minhand,maxhand+1):
         start = default_timer()
-        winning = rummi.callRecSlice(i, stones, colors, copies)
+        winning = rummi.callRecCount(i, stones, colors, copies)
         stop = default_timer()
         result.append(str(winning) + " - " + str(round(stop - start, 2)) + "s")
     stop2 = default_timer()
@@ -24,7 +24,7 @@ def listWinningHands(minhand, maxhand, stones, colors, copies):
 def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     pool  = mp.Pool(mp.cpu_count()-1)
     start = default_timer()
-    constargs = partial(rummi.callRecSlice, nmax=stones, k=colors, m=copies)
+    constargs = partial(rummi.callRecCount, nmax=stones, k=colors, m=copies)
     result = pool.map(constargs, range(minhand,maxhand+1))
     stop = default_timer()
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     #arg: minhand, maxhand, stones, colors, copies
     perfListWinningHands(3, 17, 6, 4, 2)
     #listWinningHands(3, 13, 6, 4, 2)
-    #print(rummi.callRecSlice(14, 13, 4, 2))
+    #print(rummi.callRecCount(14, 13, 4, 2))
 
 # Jan
 # 7, - 696
