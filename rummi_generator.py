@@ -22,7 +22,7 @@ def listWinningHands(minhand, maxhand, stones, colors, copies):
     printListWinningHands(result, round(stop2 - start2, 2), minhand, stones, colors, copies)
 
 def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
-    pool  = mp.Pool(mp.cpu_count()-1)
+    
     start = default_timer()
     constargs = partial(rummi.callRecCount, nmax=stones, k=colors, m=copies)
     result = pool.map(constargs, range(minhand,maxhand+1))

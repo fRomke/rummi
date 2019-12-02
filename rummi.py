@@ -1,6 +1,8 @@
 from rummi_output import *
 from rummi_util import *
 from rummi_settings import *
+import multiprocessing as mp
+from functools import partial
 
 global_remaining_hand = 0 #temporary help variable, can remove later
 
@@ -47,7 +49,9 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
     else:
         options = determinePossibleRuns(remaining_hand, minimal_size)
         if remaining_hand == global_remaining_hand:
-            print(options)
+            pool  = mp.Pool(mp.cpu_count()-1)
+            constargs = partial(recursiveCount, nmax=stones, k=colors, m=copies)
+            result = pool.map(constargs, range(minhand,maxhand+1))
         else:
             i_backup = i
             on_row_backup = on_row
