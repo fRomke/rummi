@@ -59,10 +59,10 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
                     if new_table != False:
                         solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
                     i += 1
-                if on_row < 3: on_row += 1
+                if on_row < (colors - 1): on_row += 1
                 else: on_row = -1
                 i = 0
-            if allowed_option == 3 or allowed_option == 4:
+            if allowed_option >= minimal_size and allowed_option <= colors:
                 while i != stones:#kolom
                     group_options = determinePossibleGroups(table, i, allowed_option)
                     if group_options != False:
