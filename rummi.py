@@ -1,6 +1,7 @@
 from rummi_output import *
 from rummi_util import *
 from rummi_settings import *
+from timeit import default_timer
 
 global_remaining_hand = 0 #temporary help variable, can remove later
 
@@ -41,13 +42,12 @@ def placeGroup(table, col, group):
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
 def recursiveCount(on_row, remaining_hand, table, solutions, i):
     if remaining_hand == 0:
-        outputTable(table, output)
+        #outputTable(table, output)
         solutions.add(hashTable(table))
         return solutions
     else:
         options = determinePossibleRuns(remaining_hand, minimal_size)
-        if remaining_hand == global_remaining_hand:
-            print(options)
+        #if remaining_hand == global_remaining_hand: print(options)
         i_backup = i
         on_row_backup = on_row
         for allowed_option in options: #stones=7 [3,4,7]
@@ -80,16 +80,18 @@ def callRecCount(hand_size, nmax, k , m):
     global output
     global print_to_file
     global global_remaining_hand
-    global_remaining_hand = h
+    global_remaining_hand = hand_size
     stones = nmax
     copies = m
     colors = k 
 
     table = initTable(colors, stones)
     solutions = set()
+    start = default_timer()
     solutions = recursiveCount(0, hand_size, table, solutions, 0)
+    stop = default_timer()
     if save_hash: 
         output = open('output.txt','w')
         writeSolutions(solutions)
         output.close()
-    return (len(solutions))
+    return (len(solutions), round(stop - start,2))

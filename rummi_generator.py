@@ -6,20 +6,18 @@ from timeit import default_timer
 def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     print("For " + str(colors) + " colors with " + str(stones) + " stones and " + str(copies) + " copies of each:")
     for r in result:
-        print(str(minhand) + " - " + str(r))
+        print(str(minhand) + " - " + str(r[0]) + " - " + str(r[1]) + "s")
         minhand += 1
     print("Total time taken: " + str(t)+ "s")
 
 def listWinningHands(minhand, maxhand, stones, colors, copies):
     result = []
-    start2 = default_timer()
+    start = default_timer()
     for i in range(minhand,maxhand+1):
-        start = default_timer()
         winning = rummi.callRecCount(i, stones, colors, copies)
-        stop = default_timer()
-        result.append(str(winning) + " - " + str(round(stop - start, 2)) + "s")
-    stop2 = default_timer()
-    printListWinningHands(result, round(stop2 - start2, 2), minhand, stones, colors, copies)
+        result.append(winning)
+    stop = default_timer()
+    printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
 def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     pool  = mp.Pool(mp.cpu_count()-1)
@@ -31,8 +29,8 @@ def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
 
 if __name__ == '__main__':
     #arg: minhand, maxhand, stones, colors, copies
-    perfListWinningHands(3, 17, 6, 4, 2)
-    #listWinningHands(3, 13, 6, 4, 2)
+    perfListWinningHands(3, 26, 6, 4, 2)
+    #listWinningHands(3, 16, 6, 4, 2)
     #print(rummi.callRecCount(14, 13, 4, 2))
 
 # Jan
@@ -52,6 +50,7 @@ if __name__ == '__main__':
 # 20,7220872
 # 21,16853400
 
+# ListWinningHands()
 # For 4 colors with 6 stones and 2 copies of each:
 # 3 - 0.0s - 40
 # 4 - 0.0s - 18
@@ -72,8 +71,35 @@ if __name__ == '__main__':
 # 19 - 63.37s - 6433240
 # 20 - 80.35s - 7220872
 # 21 - 186.61s - 16853400
-
 # [Done] exited with code=0 in 390.636 seconds
+
+# perfListWinningHands()
+# For 4 colors with 6 stones and 2 copies of each:
+# 3 - 40 - 0.0s
+# 4 - 18 - 0.0s
+# 5 - 8 - 0.0s
+# 6 - 820 - 0.0s
+# 7 - 696 - 0.0s
+# 8 - 467 - 0.0s
+# 9 - 10872 - 0.05s
+# 10 - 12816 - 0.07s
+# 11 - 10896 - 0.06s
+# 12 - 103340 - 0.62s
+# 13 - 146760 - 1.02s
+# 14 - 144856 - 1.08s
+# 15 - 738648 - 5.23s
+# 16 - 1150642 - 9.51s
+# 17 - 1240616 - 11.33s
+# 18 - 4042944 - 36.29s
+# 19 - 6433240 - 68.16s
+# 20 - 7220872 - 88.11s
+# 21 - 16853400 - 199.74s
+# 22 - 25910748 - 371.19s
+# 23 - 29036248 - 486.24s
+# 24 - 52234799 - 877.57s
+# 25 - 74258224 - 1510.93s
+# 26 - 79916256 - 2002.55s
+# Total time taken: 2076.47s
 
 # For 4 colors with 13 stones and 2 copies of each:
 # 3 - 0.0s - 96
