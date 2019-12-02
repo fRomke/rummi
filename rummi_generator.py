@@ -1,50 +1,40 @@
-import rummi_settings as cfg
 import rummi
 import multiprocessing as mp
 from functools import partial
 from timeit import default_timer
 
-def listWinningHands(minhand, maxhand, n, k, m):
-    stones = n
-    colors = k
-    copies = m
+def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     print("For " + str(colors) + " colors with " + str(stones) + " stones and " + str(copies) + " copies of each:")
+    for r in result:
+        print(str(minhand) + " - " + str(r))
+        minhand += 1
+    print("Total time taken: " + str(t))
+
+def listWinningHands(minhand, maxhand, stones, colors, copies):
+    stones = stones
+    colors = colors
+    copies = copies
+    result = []
+    start2 = default_timer()
     for i in range(minhand,maxhand+1):
         start = default_timer()
         winning = rummi.callRecSlice(i, stones, colors, copies)
         stop = default_timer()
-        print(str(i) + " - " + str(round(stop - start, 2)) + "s - " + str(winning))
+        result.append(str(winning) + " - " + str(round(stop - start, 2)) + "s")
+    stop2 = default_timer()
+    printListWinningHands(result, round(stop2 - start2, 2), minhand, stones, colors, copies)
 
-def perfHelper(hand):
-    stones = 6
-    colors = 4
-    copies = 2
-    winning = rummi.callRecSlice(hand, stones, colors, copies)
-    return winning
-
-def perfListWinningHands(minhand, maxhand, n ,k ,m):
+def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     pool  = mp.Pool(mp.cpu_count()-1)
     start = default_timer()
-    constargs = partial(rummi.callRecSlice, nmax=n, k=k, m=m)
+    constargs = partial(rummi.callRecSlice, nmax=stones, k=colors, m=copies)
     result = pool.map(constargs, range(minhand,maxhand+1))
     stop = default_timer()
-    print(str(round(stop-start,2)), 's')
-    print(result)
-
-def perfTestTmp(minhand, maxhand, n ,k ,m):
-    pool  = mp.Pool(mp.cpu_count()-1)
-    start = default_timer()
-    tmpl = [17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17]
-    constargs = partial(rummi.callRecSlice, nmax=n, k=k, m=m)
-    result = pool.map(constargs, tmpl)
-    stop = default_timer()
-    print(str(round(stop-start,2)), 's')
-    print(result)
+    printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
 if __name__ == '__main__':
-    #perfTestTmp(15, 21, 6, 4, 2)
-    perfListWinningHands(3, 20, 6, 4, 2)
-    #listWinningHands(15, 21, 6, 4, 2)
+    #perfListWinningHands(3, 17, 6, 4, 2)
+    listWinningHands(3, 13, 6, 4, 2)
     #print(rummi.callRecSlice(14, 13, 4, 2))
 
 # 7, - 696
