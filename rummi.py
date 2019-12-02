@@ -48,28 +48,29 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
         options = determinePossibleRuns(remaining_hand, minimal_size)
         if remaining_hand == global_remaining_hand:
             print(options)
-        i_backup = i
-        on_row_backup = on_row
-        for allowed_option in options: #stones=7 [3,4,7]
-            i = i_backup
-            on_row = on_row_backup
-            while on_row > - 1: #Checking runs for all the rows
-                while (stones - i) >= allowed_option: #kolommen in de rij
-                    new_table = placeRun(copyTable(table), i, on_row, allowed_option)
-                    if new_table != False:
-                        solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
-                    i += 1
-                if on_row < 3: on_row += 1
-                else: on_row = -1
-                i = 0
-            if allowed_option == 3 or allowed_option == 4:
-                while i != stones:#kolom
-                    group_options = determinePossibleGroups(table, i, allowed_option)
-                    if group_options != False:
-                        for g in group_options:
-                            new_table = placeGroup(copyTable(table), i, g)
+        else:
+            i_backup = i
+            on_row_backup = on_row
+            for allowed_option in options: #stones=7 [3,4,7]
+                i = i_backup
+                on_row = on_row_backup
+                while on_row > - 1: #Checking runs for all the rows
+                    while (stones - i) >= allowed_option: #kolommen in de rij
+                        new_table = placeRun(copyTable(table), i, on_row, allowed_option)
+                        if new_table != False:
                             solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
-                    i += 1
+                        i += 1
+                    if on_row < 3: on_row += 1
+                    else: on_row = -1
+                    i = 0
+                if allowed_option == 3 or allowed_option == 4:
+                    while i != stones:#kolom
+                        group_options = determinePossibleGroups(table, i, allowed_option)
+                        if group_options != False:
+                            for g in group_options:
+                                new_table = placeGroup(copyTable(table), i, g)
+                                solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                        i += 1
         return solutions
 
 def callRecCount(hand_size, nmax, k , m):
