@@ -30,10 +30,12 @@ def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
 if __name__ == '__main__':
+    #arg: minhand, maxhand, stones, colors, copies
     perfListWinningHands(3, 17, 6, 4, 2)
     #listWinningHands(3, 13, 6, 4, 2)
     #print(rummi.callRecSlice(14, 13, 4, 2))
 
+# Jan
 # 7, - 696
 # 8, - 467
 # 9, - 10872

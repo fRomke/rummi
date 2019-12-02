@@ -38,8 +38,8 @@ def placeGroup(table, col, group):
     return table
 
 #i: index for where to continue looping in the table
-#on_row: index for what row on the table; when negative we are on column 'i'
-def recursiveSlice(on_row, remaining_hand, table, solutions, i):
+#on_row: index for what row on the table; when negative we are looping on columns with i as index
+def recursiveCount(on_row, remaining_hand, table, solutions, i):
     if remaining_hand == 0:
         outputTable(table, output)
         solutions.add(hashTable(table))
@@ -57,52 +57,39 @@ def recursiveSlice(on_row, remaining_hand, table, solutions, i):
                 while (stones - i) >= allowed_option: #kolommen in de rij
                     new_table = placeRun(copyTable(table), i, on_row, allowed_option)
                     if new_table != False:
-                        solutions = recursiveSlice(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                        solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
                     i += 1
-                if on_row < 3:
-                    on_row += 1
-                    i = 0
-                else: 
-                    on_row = -1
-                    i = 0
-            if (allowed_option == 3 or allowed_option == 4) and remaining_hand != 5: #remaining_hand != 5 wellicht onnodig
-                j = i
-                while j != stones:#kolom
-                    group_options = determinePossibleGroups(table, j, allowed_option)
+                if on_row < 3: on_row += 1
+                else: on_row = -1
+                i = 0
+            if allowed_option == 3 or allowed_option == 4:
+                while i != stones:#kolom
+                    group_options = determinePossibleGroups(table, i, allowed_option)
                     if group_options != False:
                         for g in group_options:
-                            new_table = placeGroup(copyTable(table), j, g)
-                            solutions = recursiveSlice(on_row, remaining_hand - allowed_option, new_table, solutions, j)
-                    j += 1
+                            new_table = placeGroup(copyTable(table), i, g)
+                            solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                    i += 1
         return solutions
 
-def callRecSlice(h, nmax, k , m):
-    global hand_size
+def callRecCount(hand_size, nmax, k , m):
+    #Ugly, needs to be solved
     global stones
     global copies
     global colors
     global output
     global print_to_file
     global global_remaining_hand
-    output = open('output.txt','w')
     global_remaining_hand = h
-    hand_size = h
     stones = nmax
     copies = m
     colors = k 
 
     table = initTable(colors, stones)
     solutions = set()
-    solutions = recursiveSlice(0, hand_size, table, solutions, 0)
-    if save_hash: writeSolutions(solutions)
-    output.close()
+    solutions = recursiveCount(0, hand_size, table, solutions, 0)
+    if save_hash: 
+        output = open('output.txt','w')
+        writeSolutions(solutions)
+        output.close()
     return (len(solutions))
-
-
-#callRecSlice(8)
-
-
-
-
-# 14 - 12569104 Unique: 10232524
-# [Done] exited with code=0 in 517.619 seconds
