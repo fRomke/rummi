@@ -8,12 +8,9 @@ def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     for r in result:
         print(str(minhand) + " - " + str(r))
         minhand += 1
-    print("Total time taken: " + str(t))
+    print("Total time taken: " + str(t)+ "s")
 
 def listWinningHands(minhand, maxhand, stones, colors, copies):
-    stones = stones
-    colors = colors
-    copies = copies
     result = []
     start2 = default_timer()
     for i in range(minhand,maxhand+1):
@@ -33,8 +30,8 @@ def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
 if __name__ == '__main__':
-    #perfListWinningHands(3, 17, 6, 4, 2)
-    listWinningHands(3, 13, 6, 4, 2)
+    perfListWinningHands(3, 17, 6, 4, 2)
+    #listWinningHands(3, 13, 6, 4, 2)
     #print(rummi.callRecSlice(14, 13, 4, 2))
 
 # 7, - 696

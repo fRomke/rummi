@@ -2,99 +2,101 @@ from rummi_output import *
 from rummi_util import *
 from rummi_settings import *
 
-globalremaininghand = 0
+global_remaining_hand = 0 #temporary help variable, can remove later
 
-def determinePossibleLegs(remaininghand, leg): #456
-    mogelijkheden = []
-    if (remaininghand-leg) >= minimaleleg:
-        mogelijkheden.append(leg)
-        mogelijkheden += determinePossibleLegs(remaininghand, leg+1)
+def determinePossibleRuns(remaining_hand, run_size): #456
+    options = []
+    if (remaining_hand-run_size) >= minimal_size:
+        options.append(run_size)
+        options += determinePossibleRuns(remaining_hand, run_size+1)
     else:
-        mogelijkheden.append(remaininghand)
-    return mogelijkheden
+        options.append(remaining_hand)
+    return options
 
-def legZet(tafel, i, row, zet):
-    for each in range(zet):
-        if tafel[row][each + i] == copien:
+def placeRun(table, i, row, run_size):
+    for each in range(run_size):
+        if table[row][each + i] == copies:
             return False
         else:
-            tafel[row][each + i] += 1
-    return tafel
+            table[row][each + i] += 1
+    return table
 
-def determinePossibleGroups(tafel, col, leg): #444
-    glist = [0,1,2,3]
+def determinePossibleGroups(table, col, group_size): #444
+    group_list = [0,1,2,3]
     for i in range(colors):
-        if tafel[i][col] == copien:
-            glist.remove(i)
-    if len(glist) < minimaleleg:
+        if table[i][col] == copies:
+            group_list.remove(i)
+    if len(group_list) < minimal_size:
         return False
     else:
-        glist = findsubsets(glist, leg)
-        return glist
+        group_list = findSubsets(group_list, group_size)
+        return group_list
 
-def legGroup(tafel, col, group):
+def placeGroup(table, col, group):
     for i in group:
-        tafel[i][col] += 1
-    return tafel
+        table[i][col] += 1
+    return table
 
-def recursiveSlice(onrow, remaininghand, tafel, oplossingen, i):
-    if remaininghand == 0:
-        writeOffTafel(tafel, output)
-        oplossingen.add(hashTafel(tafel))
-        return oplossingen
+#i: index for where to continue looping in the table
+#on_row: index for what row on the table; when negative we are on column 'i'
+def recursiveSlice(on_row, remaining_hand, table, solutions, i):
+    if remaining_hand == 0:
+        outputTable(table, output)
+        solutions.add(hashTable(table))
+        return solutions
     else:
-        mogelijkheden = determinePossibleLegs(remaininghand, minimaleleg)
-        if remaininghand == globalremaininghand:
-            print(mogelijkheden)
-        baki = i
-        bakonrow = onrow
-        for mogeleg in mogelijkheden: #n=7 [3,4,7]
-            i = baki
-            onrow = bakonrow
-            while onrow > - 1: #rij
-                while (n - i) >= mogeleg: #kolommen in de rij
-                    newtafel = legZet(copyTable(tafel), i, onrow, mogeleg)
-                    if newtafel != False:
-                        oplossingen = recursiveSlice(onrow, remaininghand - mogeleg, newtafel, oplossingen, i)
+        options = determinePossibleRuns(remaining_hand, minimal_size)
+        if remaining_hand == global_remaining_hand:
+            print(options)
+        i_backup = i
+        on_row_backup = on_row
+        for allowed_option in options: #stones=7 [3,4,7]
+            i = i_backup
+            on_row = on_row_backup
+            while on_row > - 1: #Checking runs for all the rows
+                while (stones - i) >= allowed_option: #kolommen in de rij
+                    new_table = placeRun(copyTable(table), i, on_row, allowed_option)
+                    if new_table != False:
+                        solutions = recursiveSlice(on_row, remaining_hand - allowed_option, new_table, solutions, i)
                     i += 1
-                if onrow < 3:
-                    onrow += 1
+                if on_row < 3:
+                    on_row += 1
                     i = 0
                 else: 
-                    onrow = -1
+                    on_row = -1
                     i = 0
-            if (mogeleg == 3 or mogeleg == 4) and remaininghand != 5: #remaininghand != 5 wellicht onnodig
+            if (allowed_option == 3 or allowed_option == 4) and remaining_hand != 5: #remaining_hand != 5 wellicht onnodig
                 j = i
-                while j != n:#kolom
-                    gmogelijkheden = determinePossibleGroups(tafel, j, mogeleg)
-                    if gmogelijkheden != False:
-                        for g in gmogelijkheden:
-                            newtafel = legGroup(copyTable(tafel), j, g)
-                            oplossingen = recursiveSlice(onrow, remaininghand - mogeleg, newtafel, oplossingen, j)
+                while j != stones:#kolom
+                    group_options = determinePossibleGroups(table, j, allowed_option)
+                    if group_options != False:
+                        for g in group_options:
+                            new_table = placeGroup(copyTable(table), j, g)
+                            solutions = recursiveSlice(on_row, remaining_hand - allowed_option, new_table, solutions, j)
                     j += 1
-        return oplossingen
+        return solutions
 
 def callRecSlice(h, nmax, k , m):
-    global handsize
-    global n
-    global copien
+    global hand_size
+    global stones
+    global copies
     global colors
     global output
-    global printtofile
-    global globalremaininghand
+    global print_to_file
+    global global_remaining_hand
     output = open('output.txt','w')
-    globalremaininghand = h
-    handsize = h
-    n = nmax
-    copien = m
+    global_remaining_hand = h
+    hand_size = h
+    stones = nmax
+    copies = m
     colors = k 
 
-    tafel = initTafel(colors, n)
-    oplossingen = set()
-    oplossingen = recursiveSlice(0, handsize, tafel, oplossingen, 0)
-    if savehash: writeSolutions(oplossingen)
+    table = initTable(colors, stones)
+    solutions = set()
+    solutions = recursiveSlice(0, hand_size, table, solutions, 0)
+    if save_hash: writeSolutions(solutions)
     output.close()
-    return (len(oplossingen))
+    return (len(solutions))
 
 
 #callRecSlice(8)
