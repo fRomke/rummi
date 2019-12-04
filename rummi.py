@@ -3,6 +3,7 @@ from rummi_util import *
 from rummi_settings import *
 import multiprocessing as mp
 from functools import partial
+from timeit import default_timer
 
 global_remaining_hand = 0 #temporary help variable, can remove later
 
@@ -43,37 +44,33 @@ def placeGroup(table, col, group):
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
 def recursiveCount(on_row, remaining_hand, table, solutions, i):
     if remaining_hand == 0:
-        outputTable(table, output)
+        #outputTable(table, output)
         solutions.add(hashTable(table))
         return solutions
     else:
         options = determinePossibleRuns(remaining_hand, minimal_size)
-        if remaining_hand == global_remaining_hand:
-            pool  = mp.Pool(mp.cpu_count()-1)
-            constargs = partial(recursiveCount, nmax=stones, k=colors, m=copies)
-            result = pool.map(constargs, range(minhand,maxhand+1))
-        else:
-            i_backup = i
-            on_row_backup = on_row
-            for allowed_option in options: #stones=7 [3,4,7]
-                i = i_backup
-                on_row = on_row_backup
-                while on_row > - 1: #Checking runs for all the rows
-                    while (stones - i) >= allowed_option: #kolommen in de rij
-                        new_table = placeRun(copyTable(table), i, on_row, allowed_option)
-                        if new_table != False:
+        #if remaining_hand == global_remaining_hand: print(options)
+        i_backup = i
+        on_row_backup = on_row
+        for allowed_option in options: #stones=7 [3,4,7]
+            i = i_backup
+            on_row = on_row_backup
+            while on_row > - 1: #Checking runs for all the rows
+                while (stones - i) >= allowed_option: #kolommen in de rij
+                    new_table = placeRun(copyTable(table), i, on_row, allowed_option)
+                    if new_table != False:
+                        solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                    i += 1
+                if on_row < (colors - 1): on_row += 1
+                else: on_row = -1
+                i = 0
+            if allowed_option >= minimal_size and allowed_option <= colors:
+                while i != stones:#kolom
+                    group_options = determinePossibleGroups(table, i, allowed_option)
+                    if group_options != False:
+                        for g in group_options:
+                            new_table = placeGroup(copyTable(table), i, g)
                             solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
-                        i += 1
-                    if on_row < 3: on_row += 1
-                    else: on_row = -1
-                    i = 0
-                if allowed_option == 3 or allowed_option == 4:
-                    while i != stones:#kolom
-                        group_options = determinePossibleGroups(table, i, allowed_option)
-                        if group_options != False:
-                            for g in group_options:
-                                new_table = placeGroup(copyTable(table), i, g)
-                                solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
                         i += 1
         return solutions
 
@@ -85,16 +82,18 @@ def callRecCount(hand_size, nmax, k , m):
     global output
     global print_to_file
     global global_remaining_hand
-    global_remaining_hand = h
+    global_remaining_hand = hand_size
     stones = nmax
     copies = m
     colors = k 
 
     table = initTable(colors, stones)
     solutions = set()
+    start = default_timer()
     solutions = recursiveCount(0, hand_size, table, solutions, 0)
+    stop = default_timer()
     if save_hash: 
         output = open('output.txt','w')
         writeSolutions(solutions)
         output.close()
-    return (len(solutions))
+    return (len(solutions), round(stop - start,2))
