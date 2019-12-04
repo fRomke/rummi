@@ -73,6 +73,19 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
                             solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
                         i += 1
         return solutions
+ 
+
+def perfRecursiveCount(on_row, remaining_hand, table, solutions, i):
+    if remaining_hand == 0:
+        #outputTable(table, output)
+        solutions.add(hashTable(table))
+        return solutions
+    else:
+        options = determinePossibleRuns(remaining_hand, minimal_size)
+        for allowed_option in options:
+            indexes = range(0, stones - allowed_option + 1)
+
+    return solutions
 
 def callRecCount(hand_size, nmax, k , m):
     #Ugly, needs to be solved

@@ -20,18 +20,30 @@ def listWinningHands(minhand, maxhand, stones, colors, copies):
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
 def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
-    
+    pool  = mp.Pool(mp.cpu_count()-1)
     start = default_timer()
     constargs = partial(rummi.callRecCount, nmax=stones, k=colors, m=copies)
     result = pool.map(constargs, range(minhand,maxhand+1))
     stop = default_timer()
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
+results = []
+def collect_result(result):
+    results.append(result)
+
+def perfTest():
+    pool  = mp.Pool(mp.cpu_count()-1)
+    constargs = partial(rummi.callRecCount, nmax=6, k=4, m=2)
+    a = pool.map(constargs, range(3,12))
+    print("hello")
+    print(a)
+
 if __name__ == '__main__':
     #arg: minhand, maxhand, stones, colors, copies
-    perfListWinningHands(3, 14, 13, 4, 2)
+    perfListWinningHands(3, 14, 6, 4, 2)
     #listWinningHands(3, 16, 6, 4, 2)
-    #print(rummi.callRecCount(14, 13, 2, 2))
+    #print(rummi.callRecCount(6, 13, 4, 2))
+    #perfTest()
 
 # perfListWinningHands()
 # For 4 colors with 6 stones and 2 copies of each:
