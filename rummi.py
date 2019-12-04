@@ -71,7 +71,7 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
                         for g in group_options:
                             new_table = placeGroup(copyTable(table), i, g)
                             solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
-                        i += 1
+                    i += 1
         return solutions
  
 
