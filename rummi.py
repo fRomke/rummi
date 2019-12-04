@@ -42,8 +42,11 @@ def placeGroup(table, col, group):
 
 #i: index for where to continue looping in the table
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
-def recursiveCount(on_row, remaining_hand, table, solutions, i):
-    if remaining_hand == 0:
+def recursiveCount(args):
+    on_row, i, remaining_hand, table, solutions = args
+    if table == False:
+        return solutions
+    elif remaining_hand == 0:
         #outputTable(table, output)
         solutions.add(hashTable(table))
         return solutions
@@ -57,9 +60,10 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
             on_row = on_row_backup
             while on_row > - 1: #Checking runs for all the rows
                 while (stones - i) >= allowed_option: #kolommen in de rij
-                    new_table = placeRun(copyTable(table), i, on_row, allowed_option)
-                    if new_table != False:
-                        solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                    solutions = recursiveCount([(on_row, i), 
+                        remaining_hand - allowed_option, 
+                        placeRun(copyTable(table), i, on_row, allowed_option), 
+                        solutions])
                     i += 1
                 if on_row < (colors - 1): on_row += 1
                 else: on_row = -1
@@ -70,22 +74,39 @@ def recursiveCount(on_row, remaining_hand, table, solutions, i):
                     if group_options != False:
                         for g in group_options:
                             new_table = placeGroup(copyTable(table), i, g)
-                            solutions = recursiveCount(on_row, remaining_hand - allowed_option, new_table, solutions, i)
+                            solutions = recursiveCount([(on_row, i), remaining_hand - allowed_option, new_table, solutions])
                     i += 1
         return solutions
  
 
-def perfRecursiveCount(on_row, remaining_hand, table, solutions, i):
-    if remaining_hand == 0:
-        #outputTable(table, output)
-        solutions.add(hashTable(table))
-        return solutions
-    else:
-        options = determinePossibleRuns(remaining_hand, minimal_size)
-        for allowed_option in options:
-            indexes = range(0, stones - allowed_option + 1)
+def perfCallRecCount(hand_size, nmax, k , m):
+    global stones
+    global copies
+    global colors
+    global output
+    global print_to_file
+    global global_remaining_hand
+    global_remaining_hand = hand_size
+    stones = nmax
+    copies = m
+    colors = k 
+    table = initTable(colors, stones)
+    solutions = set()
+    pool  = mp.Pool(1)
 
-    return solutions
+    options = determinePossibleRuns(hand_size, minimal_size)
+    on_rows = list(range(0,colors))
+    q = []
+    for option in options:
+        for on_row in on_rows:
+            for i in range(0,stones-option+1):
+                q.append([on_row, i, hand_size, (placeRun(copyTable(table), i, on_row, option)), solutions])
+
+    print(len(q[0]))
+
+    mappie = pool.map(recursiveCount, q)
+    print(mappie)
+    #solutions = recursiveCount((0,0), hand_size, table, solutions)
 
 def callRecCount(hand_size, nmax, k , m):
     #Ugly, needs to be solved
@@ -103,10 +124,13 @@ def callRecCount(hand_size, nmax, k , m):
     table = initTable(colors, stones)
     solutions = set()
     start = default_timer()
-    solutions = recursiveCount(0, hand_size, table, solutions, 0)
+    solutions = recursiveCount((0,0), hand_size, table, solutions)
     stop = default_timer()
     if save_hash: 
         output = open('output.txt','w')
         writeSolutions(solutions)
         output.close()
     return (len(solutions), round(stop - start,2))
+
+if __name__ == '__main__':
+    perfCallRecCount(7, 13, 4, 2)
