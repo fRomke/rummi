@@ -43,6 +43,9 @@ def placeGroup(table, col, group):
 #i: index for where to continue looping in the table
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
 def recursiveCount(args):
+    if len(args) != 5:
+        print(args)
+        quit()
     on_row, i, remaining_hand, table, solutions = args
     if table == False:
         return solutions
@@ -60,7 +63,8 @@ def recursiveCount(args):
             on_row = on_row_backup
             while on_row > - 1: #Checking runs for all the rows
                 while (stones - i) >= allowed_option: #kolommen in de rij
-                    solutions = recursiveCount([(on_row, i), 
+                    solutions = recursiveCount([on_row, 
+                        i, 
                         remaining_hand - allowed_option, 
                         placeRun(copyTable(table), i, on_row, allowed_option), 
                         solutions])
@@ -74,7 +78,11 @@ def recursiveCount(args):
                     if group_options != False:
                         for g in group_options:
                             new_table = placeGroup(copyTable(table), i, g)
-                            solutions = recursiveCount([(on_row, i), remaining_hand - allowed_option, new_table, solutions])
+                            solutions = recursiveCount([on_row, 
+                                i, 
+                                remaining_hand - allowed_option, 
+                                new_table, 
+                                solutions])
                     i += 1
         return solutions
  
@@ -92,7 +100,7 @@ def perfCallRecCount(hand_size, nmax, k , m):
     colors = k 
     table = initTable(colors, stones)
     solutions = set()
-    pool  = mp.Pool(1)
+    pool  = mp.Pool(mp.cpu_count()-1)
 
     options = determinePossibleRuns(hand_size, minimal_size)
     on_rows = list(range(0,colors))
@@ -101,11 +109,20 @@ def perfCallRecCount(hand_size, nmax, k , m):
         for on_row in on_rows:
             for i in range(0,stones-option+1):
                 q.append([on_row, i, hand_size, (placeRun(copyTable(table), i, on_row, option)), solutions])
+    print(len(q))
 
-    print(len(q[0]))
+    
+    def collectResult(results):
+        answer = set()
+        for r in results:
+            answer = answer.union(r)
+        print(len(answer))
 
-    mappie = pool.map(recursiveCount, q)
-    print(mappie)
+    mappie = pool.map_async(recursiveCount, q, callback=collectResult)
+    #s = set(mappie)
+    mappie.wait()
+    print(len(answer))
+    #print(len(mappie[0]))
     #solutions = recursiveCount((0,0), hand_size, table, solutions)
 
 def callRecCount(hand_size, nmax, k , m):
