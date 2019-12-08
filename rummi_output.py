@@ -1,22 +1,29 @@
 from rummi_settings import print_to_console, print_to_file
 
 def outputTable(table,output):
-    if print_to_console or print_to_file:
-        printTable(table, output)
+    if print_to_console: 
+        printTableToConsole(table)
+    if print_to_file:
+        printTableToFile(table, output)
 
-def printTable(table, output):
+def printTableToConsole(table):
     if table == False:
         print("false")
         return
     for j in table:
-        if print_to_console: print(j)
-        if print_to_file:
-            for i in j:
-                output.write(str(i))
-                output.write(' ')
-            output.write('\n')
-    if print_to_console: print('\n')
-    if print_to_file: output.write('\n')
+        print(j)
+    print('\n')
+
+def printTableToFile(table, file):
+    if table == False:
+        print("false")
+        return
+    for j in table:
+        for i in j:
+            file.write(str(i))
+            file.write(' ')
+        file.write('\n')
+    file.write('\n')
 
 def writeSolutions(s):
     f = open("output_hashed.txt", "w")
