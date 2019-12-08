@@ -77,11 +77,10 @@ def recursiveCount(args):
                     group_options = determinePossibleGroups(table, i, allowed_option)
                     if group_options != False:
                         for g in group_options:
-                            new_table = placeGroup(copyTable(table), i, g)
                             solutions = recursiveCount([on_row, 
                                 i, 
                                 remaining_hand - allowed_option, 
-                                new_table, 
+                                placeGroup(copyTable(table), i, g), 
                                 solutions])
                     i += 1
         return solutions
@@ -102,28 +101,46 @@ def perfCallRecCount(hand_size, nmax, k , m):
     solutions = set()
     pool  = mp.Pool(mp.cpu_count()-1)
 
+    #Creating tasklist for first recursive level
     options = determinePossibleRuns(hand_size, minimal_size)
     on_rows = list(range(0,colors))
+    on_rows.append(-1)
     q = []
     for option in options:
         for on_row in on_rows:
-            for i in range(0,stones-option+1):
-                q.append([on_row, i, hand_size, (placeRun(copyTable(table), i, on_row, option)), solutions])
-    print(len(q))
-
+            if on_row == -1 and option <= colors :
+                for i in range(0, stones):
+                    for g in determinePossibleGroups(table, i, option):
+                        q.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), solutions])
+            elif on_row != -1:
+                for i in range(0,stones-option+1):
+                    q.append([on_row, i, hand_size-option, (placeRun(copyTable(table), i, on_row, option)), solutions])
     
-    def collectResult(results):
-        answer = set()
-        for r in results:
-            answer = answer.union(r)
-        print(len(answer))
+    #size of tasks
+    print(len(q), " tasks queued")
+    # for w in q:
+    #     print("on_row ", w[0], " i ", w[1], " hand ", w[2], " sol ", len(w[4]))
+    #     printTableToConsole(w[3])
+    # quit()
+    #Executing tasks
+    def collect(r):
+        print(len(r))
 
-    mappie = pool.map_async(recursiveCount, q, callback=collectResult)
-    #s = set(mappie)
+    mappie = pool.map_async(recursiveCount, q, callback=collect)
     mappie.wait()
-    print(len(answer))
-    #print(len(mappie[0]))
-    #solutions = recursiveCount((0,0), hand_size, table, solutions)
+    mappie = set(y for x in mappie.get() for y in x)  
+    print(len(mappie))
+
+    # List method in sync
+    # mappie = pool.map(recursiveCount, q)
+    # mappie = set(y for x in mappie for y in x)
+    # print(len(mappie))
+
+    # Sequential
+    # e = set()
+    # for w in q:
+    #     e = recursiveCount(w)
+    # print(len(e))
 
 def callRecCount(hand_size, nmax, k , m):
     #Ugly, needs to be solved
@@ -150,4 +167,4 @@ def callRecCount(hand_size, nmax, k , m):
     return (len(solutions), round(stop - start,2))
 
 if __name__ == '__main__':
-    perfCallRecCount(7, 13, 4, 2)
+    perfCallRecCount(12, 13, 4, 2)
