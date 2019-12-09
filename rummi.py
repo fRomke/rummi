@@ -80,6 +80,24 @@ def recursiveCount(args):
         return solutions
  
 
+def createTaskList(hand_size):
+    table = initTable(colors, stones)
+    solutions = set()
+    options = determinePossibleRuns(hand_size, minimal_size)
+    on_rows = list(range(0,colors))
+    on_rows.append(-1)
+    tasks = []
+    for option in options:
+        for on_row in on_rows:
+            if on_row == -1 and option <= colors :
+                for i in range(0, stones):
+                    for g in determinePossibleGroups(table, i, option):
+                        tasks.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), solutions])
+            elif on_row != -1 and option <= 5:
+                for i in range(0,stones-option+1):
+                    tasks.append([on_row, i, hand_size-option, (placeRun(copyTable(table), i, on_row, option)), solutions])
+    return tasks
+
 def perfCallRecCount(hand_size, nmax, k , m):
     #initializing vars
     global stones
@@ -88,62 +106,18 @@ def perfCallRecCount(hand_size, nmax, k , m):
     stones = nmax
     copies = m
     colors = k 
-    table = initTable(colors, stones)
-    solutions = set()
-    pool = mp.Pool(mp.cpu_count()-1)
-
-    #Creating tasklist for first recursive level
-    options = determinePossibleRuns(hand_size, minimal_size)
-    on_rows = list(range(0,colors))
-    on_rows.append(-1)
-    q = []
-    for option in options:
-        for on_row in on_rows:
-            if on_row == -1 and option <= colors :
-                for i in range(0, stones):
-                    for g in determinePossibleGroups(table, i, option):
-                        q.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), solutions])
-            elif on_row != -1 and option <= 5:
-                for i in range(0,stones-option+1):
-                    q.append([on_row, i, hand_size-option, (placeRun(copyTable(table), i, on_row, option)), solutions])
+    pool = mp.Pool(mp.cpu_count()-1)  
     
-    #size of tasks
-    print(len(q), "tasks queued")
+    tasks = createTaskList(hand_size)
 
     #map unordered
     start = default_timer()
     imapsol = set()
-    for ip in pool.imap_unordered(recursiveCount, q):
+    for ip in pool.imap_unordered(recursiveCount, tasks):
         for i in ip:
             imapsol.add(i)
     stop = default_timer()
-    print("imap_unordered", len(imapsol))
-    print(round(stop - start,2))
-
-    #amap_async
-    start = default_timer()
-    mapasync = pool.map_async(recursiveCount, q)
-    asyncsol = set(y for x in mapasync.get() for y in x) 
-    stop = default_timer()
-    print("map_async", len(asyncsol))
-    print(round(stop - start,2))
-
-    #map
-    start = default_timer()
-    mapsync = pool.map(recursiveCount, q)
-    mapsol = set(y for x in mapsync for y in x)
-    stop = default_timer()
-    print("map", len(mapsol))
-    print(round(stop - start,2))
-
-    # Sequential
-    start = default_timer()
-    seqsol = set()
-    for w in q:
-        seqsol = recursiveCount(w)
-    print("seq (for loop)", len(seqsol))
-    stop = default_timer()
-    print(round(stop - start,2))
+    return (len(imapsol), round(stop - start,2))
 
 def callRecCount(hand_size, nmax, k , m):
     #Ugly, needs to be solved
@@ -160,6 +134,3 @@ def callRecCount(hand_size, nmax, k , m):
     solutions = recursiveCount([0,0, hand_size, table, solutions])
     stop = default_timer()
     return (len(solutions), round(stop - start,2))
-
-if __name__ == '__main__':
-    perfCallRecCount(14, 13, 4, 2)
