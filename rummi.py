@@ -4,8 +4,7 @@ from rummi_settings import *
 import multiprocessing as mp
 from functools import partial
 from timeit import default_timer
-
-global_remaining_hand = 0 #temporary help variable, can remove later
+import time
 
 def determinePossibleRuns(remaining_hand, run_size): #456
     options = []
@@ -43,19 +42,14 @@ def placeGroup(table, col, group):
 #i: index for where to continue looping in the table
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
 def recursiveCount(args):
-    if len(args) != 5:
-        print(args)
-        quit()
     on_row, i, remaining_hand, table, solutions = args
     if table == False:
         return solutions
     elif remaining_hand == 0:
-        #outputTable(table, output)
         solutions.add(hashTable(table))
         return solutions
     else:
         options = determinePossibleRuns(remaining_hand, minimal_size)
-        #if remaining_hand == global_remaining_hand: print(options)
         i_backup = i
         on_row_backup = on_row
         for allowed_option in options: #stones=7 [3,4,7]
@@ -87,19 +81,16 @@ def recursiveCount(args):
  
 
 def perfCallRecCount(hand_size, nmax, k , m):
+    #initializing vars
     global stones
     global copies
     global colors
-    global output
-    global print_to_file
-    global global_remaining_hand
-    global_remaining_hand = hand_size
     stones = nmax
     copies = m
     colors = k 
     table = initTable(colors, stones)
     solutions = set()
-    pool  = mp.Pool(mp.cpu_count()-1)
+    pool = mp.Pool(mp.cpu_count()-1)
 
     #Creating tasklist for first recursive level
     options = determinePossibleRuns(hand_size, minimal_size)
@@ -112,45 +103,53 @@ def perfCallRecCount(hand_size, nmax, k , m):
                 for i in range(0, stones):
                     for g in determinePossibleGroups(table, i, option):
                         q.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), solutions])
-            elif on_row != -1:
+            elif on_row != -1 and option <= 5:
                 for i in range(0,stones-option+1):
                     q.append([on_row, i, hand_size-option, (placeRun(copyTable(table), i, on_row, option)), solutions])
     
     #size of tasks
-    print(len(q), " tasks queued")
-    # for w in q:
-    #     print("on_row ", w[0], " i ", w[1], " hand ", w[2], " sol ", len(w[4]))
-    #     printTableToConsole(w[3])
-    # quit()
-    #Executing tasks
-    def collect(r):
-        print(len(r))
+    print(len(q), "tasks queued")
 
-    mappie = pool.map_async(recursiveCount, q, callback=collect)
-    mappie.wait()
-    mappie = set(y for x in mappie.get() for y in x)  
-    print(len(mappie))
+    #map unordered
+    start = default_timer()
+    imapsol = set()
+    for ip in pool.imap_unordered(recursiveCount, q):
+        for i in ip:
+            imapsol.add(i)
+    stop = default_timer()
+    print("imap_unordered", len(imapsol))
+    print(round(stop - start,2))
 
-    # List method in sync
-    # mappie = pool.map(recursiveCount, q)
-    # mappie = set(y for x in mappie for y in x)
-    # print(len(mappie))
+    #amap_async
+    start = default_timer()
+    mapasync = pool.map_async(recursiveCount, q)
+    asyncsol = set(y for x in mapasync.get() for y in x) 
+    stop = default_timer()
+    print("map_async", len(asyncsol))
+    print(round(stop - start,2))
+
+    #map
+    start = default_timer()
+    mapsync = pool.map(recursiveCount, q)
+    mapsol = set(y for x in mapsync for y in x)
+    stop = default_timer()
+    print("map", len(mapsol))
+    print(round(stop - start,2))
 
     # Sequential
-    # e = set()
-    # for w in q:
-    #     e = recursiveCount(w)
-    # print(len(e))
+    start = default_timer()
+    seqsol = set()
+    for w in q:
+        seqsol = recursiveCount(w)
+    print("seq (for loop)", len(seqsol))
+    stop = default_timer()
+    print(round(stop - start,2))
 
 def callRecCount(hand_size, nmax, k , m):
     #Ugly, needs to be solved
     global stones
     global copies
     global colors
-    global output
-    global print_to_file
-    global global_remaining_hand
-    global_remaining_hand = hand_size
     stones = nmax
     copies = m
     colors = k 
@@ -158,13 +157,9 @@ def callRecCount(hand_size, nmax, k , m):
     table = initTable(colors, stones)
     solutions = set()
     start = default_timer()
-    solutions = recursiveCount((0,0), hand_size, table, solutions)
+    solutions = recursiveCount([0,0, hand_size, table, solutions])
     stop = default_timer()
-    if save_hash: 
-        output = open('output.txt','w')
-        writeSolutions(solutions)
-        output.close()
     return (len(solutions), round(stop - start,2))
 
 if __name__ == '__main__':
-    perfCallRecCount(12, 13, 4, 2)
+    perfCallRecCount(14, 13, 4, 2)
