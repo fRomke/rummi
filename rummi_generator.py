@@ -19,7 +19,7 @@ def listWinningHands(minhand, maxhand, stones, colors, copies):
     stop = default_timer()
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
-def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
+def paralellListWinningHands(minhand, maxhand, stones ,colors ,copies):
     pool  = mp.Pool(mp.cpu_count()-1)
     start = default_timer()
     constargs = partial(rummi.callRecCount, nmax=stones, k=colors, m=copies)
@@ -27,14 +27,13 @@ def perfListWinningHands(minhand, maxhand, stones ,colors ,copies):
     stop = default_timer()
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
-def perfTest(minhand, maxhand, stones ,colors ,copies):
-    r = []
-    pool  = mp.Pool(mp.cpu_count()-1)
+def paralellBigHands(minhand, maxhand, stones ,colors ,copies):
+    r= []
     start = default_timer()
-    constargs = partial(rummi.callRecCount, nmax=stones, k=colors, m=copies)
-    mappie = pool.map_async(constargs, range(minhand,maxhand+1), callback=r.append)
+    for i in range(minhand, maxhand+1):
+        r.append(rummi.perfCallRecCount(i, stones, colors, copies))
+        print(r[-1])
     stop = default_timer()
-    mappie.wait()
     printListWinningHands(r, round(stop - start, 2), minhand, stones, colors, copies)
 
 
@@ -43,10 +42,7 @@ if __name__ == '__main__':
     #perfListWinningHands(3, 14, 13, 4, 2)
     #listWinningHands(3, 16, 6, 4, 2)
     #print(rummi.callRecCount(6, 13, 4, 2))
-    perfListWinningHands(3, 17, 6, 4, 2)
-    perfListWinningHands(3, 11, 13, 4, 2)
-    perfListWinningHands(3, 14, 7, 4, 2)
-    #perfTest(3, 22, 13, 2, 2)
+    paralellBigHands(3, 15, 13, 4, 2)
 
 # perfListWinningHands()
 # For 4 colors with 6 stones and 2 copies of each:
@@ -144,16 +140,16 @@ if __name__ == '__main__':
 # Total time taken: 627.03s
 
 # For 4 colors with 13 stones and 2 copies of each:
-# 3 - 96 - 0.0s
-# 4 - 53 - 0.0s
-# 5 - 36 - 0.0s
-# 6 - 4656 - 0.03s
-# 7 - 4980 - 0.04s
-# 8 - 4731 - 0.03s
-# 9 - 151728 - 1.1s
-# 10 - 233412 - 1.79s
-# 11 - 279108 - 2.18s
-# 12 - 3753318 - 28.43s
-# 13 - 7244080 - 59.58s
-# 14 - 10232524 - 87.3s
-# Total time taken: 87.78s
+# 3 - 96 - 0.05s
+# 4 - 53 - 0.03s
+# 5 - 36 - 0.05s
+# 6 - 4656 - 0.06s
+# 7 - 4980 - 0.06s
+# 8 - 4731 - 0.06s
+# 9 - 151728 - 0.22s
+# 10 - 233412 - 0.33s
+# 11 - 279108 - 0.39s
+# 12 - 3753318 - 4.52s
+# 13 - 7244080 - 9.83s
+# 14 - 10232524 - 14.43s
+# 15 - 75493324 - 99.68s
