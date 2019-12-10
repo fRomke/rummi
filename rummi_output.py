@@ -1,5 +1,5 @@
-from rummi_settings import print_to_console, print_to_file
-
+print_to_console = False
+print_to_file = False
 def outputTable(table,output):
     if print_to_console: 
         printTableToConsole(table)
