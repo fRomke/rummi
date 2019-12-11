@@ -6,7 +6,7 @@ from timeit import default_timer
 def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     print("For " + str(colors) + " colors with " + str(stones) + " stones and " + str(copies) + " copies of each:")
     for r in result:
-        print(str(minhand) + " - " + str(r[0]) + " - " + str(r[1]) + "s")
+        print(str(minhand) + " - " + str(r[0]) + " - " + str(r[1]) + "s - " + str(r[2]) + " bytes")
         minhand += 1
     print("Total time taken: " + str(t)+ "s")
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     #perfListWinningHands(3, 14, 13, 4, 2)
     #listWinningHands(3, 16, 6, 4, 2)
     #print(rummi.callRecCount(6, 13, 4, 2))
-    paralellBigHands(3, 15, 13, 4, 2)
+    paralellBigHands(3, 14, 13, 4, 2)
 
 # perfListWinningHands()
 # For 4 colors with 6 stones and 2 copies of each:

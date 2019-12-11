@@ -2,6 +2,7 @@ from rummi_output import *
 from rummi_util import *
 import multiprocessing as mp
 from timeit import default_timer
+from sys import getsizeof
 
 stones = "stones"
 colors = "colors"
@@ -117,7 +118,7 @@ def perfCallRecCount(hand_size, nmax, k , m):
         for i in ip:
             imapsol.add(i)
     stop = default_timer()
-    return (len(imapsol), round(stop - start,2))
+    return [len(imapsol), round(stop - start,2), placeValue((getsizeof(imapsol)))]
 
     # start = default_timer()
     # seqsol = set()
