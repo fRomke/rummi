@@ -117,10 +117,10 @@ def createTaskList(cfg, hand_size):
 
 # Wrapper for the recursive calls
 # Support for multicoreprocessing
-def perfCallRecCount(hand_size, nmax, k , m):
+def perfCallRecCount(hand_size, nmax, k , m, cores):
     #initializing vars
     config = {stones:nmax, colors:k, copies:m, minimal_size:3}
-    pool = mp.Pool(mp.cpu_count()-1)
+    pool = mp.Pool(cores)
     tasks = createTaskList(config, hand_size)
     #Calculation start
     start = default_timer()

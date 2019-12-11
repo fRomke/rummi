@@ -39,26 +39,30 @@ def writeResult(i, stones, colors, copies, r):
     return line
 
 # Multicoreprocessing per hand
-def paralellBigHands(minhand, maxhand, stones ,colors ,copies):
+def paralellBigHands(minhand, maxhand, stones ,colors ,copies, cores):
     r= []
     start = default_timer()
     for i in range(minhand, maxhand+1):
-        r.append(rummi.perfCallRecCount(i, stones, colors, copies))
+        r.append(rummi.perfCallRecCount(i, stones, colors, copies, cores))
         print(writeResult(i, stones, colors, copies, r[-1]))
     stop = default_timer()
     printListWinningHands(r, round(stop - start, 2), minhand, stones, colors, copies)
 
-
 if __name__ == '__main__':
     minhand = 3
-    maxhand = 12
+    maxhand = 10
     stones = 13
     colors = 4
     copies = 2
-    if len(argv) > 1:
+    cores = 4
+    if len(argv) == 7:
         minhand = int(argv[1])
         maxhand = int(argv[2])
         stones = int(argv[3])
         colors = int(argv[4])
         copies = int(argv[5])
-    paralellBigHands(minhand, maxhand, stones, colors, copies)
+        cores = int(argv[6])
+    elif len(argv)>1 and len(argv) != 7:
+        print("Invalid amount of arguments. Must be either none or six.")
+        quit()
+    paralellBigHands(minhand, maxhand, stones, colors, copies, cores)
