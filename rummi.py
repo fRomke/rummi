@@ -2,7 +2,6 @@ from rummi_output import *
 from rummi_util import *
 import multiprocessing as mp
 from timeit import default_timer
-from sys import getsizeof
 
 stones = "stones"
 colors = "colors"
@@ -97,7 +96,6 @@ def recursiveCount(args):
 # This can be easily return 
 def createTaskList(cfg, hand_size):
     table = initTable(cfg[colors], cfg[stones])
-    solutions = set()
     options = determinePossibleRuns(cfg, hand_size, cfg[minimal_size])
     on_rows = list(range(0,cfg[colors]))
     on_rows.append(-1)
@@ -108,11 +106,11 @@ def createTaskList(cfg, hand_size):
             if on_row == -1 and option <= cfg[colors] :
                 for i in range(0, cfg[stones]):
                     for g in determinePossibleGroups(cfg, table, i, option):
-                        tasks.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), solutions, cfg])
+                        tasks.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), set() , cfg])
             #Tasklist for columns
             elif on_row != -1 and option <= 5:
                 for i in range(0,cfg[stones]-option+1):
-                    tasks.append([on_row, i, hand_size-option, placeRun(cfg, copyTable(table), i, on_row, option), solutions,cfg])
+                    tasks.append([on_row, i, hand_size-option, placeRun(cfg, copyTable(table), i, on_row, option), set(),cfg])
     return tasks
 
 # Wrapper for the recursive calls
@@ -129,8 +127,10 @@ def perfCallRecCount(hand_size, nmax, k , m, cores):
         for i in ip:
             imapsol.add(i)
     stop = default_timer()
+    pool.close()
+    pool.join()
     # Returns: Lengt of the solution set, time taken to calculate en storage size of the solution list
-    return [len(imapsol), round(stop - start,2), placeValue((getsizeof(imapsol)))]
+    return [len(imapsol), round(stop - start,2)]
 
 # Wrapper for the recursive calls
 # No support for multicoreprocessing

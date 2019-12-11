@@ -7,7 +7,7 @@ from sys import argv
 def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     print("For " + str(colors) + " colors with " + str(stones) + " stones and " + str(copies) + " copies of each:")
     for r in result:
-        print(str(minhand) + " - " + str(r[0]) + " - " + str(r[1]) + "s - " + str(r[2]) + " bytes")
+        print(str(minhand) + " - " + str(r[0]) + " - " + str(r[1]) + "s")
         minhand += 1
     print("Total time taken: " + str(t)+ "s")
 
@@ -30,9 +30,9 @@ def paralellListWinningHands(minhand, maxhand, stones ,colors ,copies):
     stop = default_timer()
     printListWinningHands(result, round(stop - start, 2), minhand, stones, colors, copies)
 
-def writeResult(i, stones, colors, copies, r):
-    line = "n" + str(stones) + "k" + str(colors) + "m" + str(copies) + "h - " + str(i) + " - "
-    line += str(r[0]) + " - " + str(r[1]) + " - " + str(r[2])
+def writeResult(i, stones, colors, copies, cores, r):
+    line = "n" + str(stones) + "k" + str(colors) + "m" + str(copies) + "c" + str(cores) + "h - " + str(i) + " - "
+    line += str(r[0]) + " - " + str(r[1])
     out = open('results.txt', 'a')
     out.write(line + '\n')
     out.close()
@@ -44,7 +44,7 @@ def paralellBigHands(minhand, maxhand, stones ,colors ,copies, cores):
     start = default_timer()
     for i in range(minhand, maxhand+1):
         r.append(rummi.perfCallRecCount(i, stones, colors, copies, cores))
-        print(writeResult(i, stones, colors, copies, r[-1]))
+        print(writeResult(i, stones, colors, copies, cores, r[-1]))
     stop = default_timer()
     printListWinningHands(r, round(stop - start, 2), minhand, stones, colors, copies)
 
