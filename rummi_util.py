@@ -23,4 +23,7 @@ def copyTable(table):
     return new_table
 
 def findSubsets(s, leg): 
-    return list(map(set, combinations(s, leg))) 
+    return list(map(set, combinations(s, leg)))
+
+def placeValue(number): 
+    return ("{:,}".format(number)) 
