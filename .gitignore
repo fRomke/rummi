@@ -106,3 +106,4 @@ venv.bak/
 .vscode/launch.json
 output.txt
 rumminew.code-workspace
+results.txt
