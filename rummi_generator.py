@@ -2,6 +2,7 @@ import rummi
 import multiprocessing as mp
 from functools import partial
 from timeit import default_timer
+from sys import argv
 
 def printListWinningHands(result, t, minhand, stones ,colors ,copies):
     print("For " + str(colors) + " colors with " + str(stones) + " stones and " + str(copies) + " copies of each:")
@@ -49,8 +50,15 @@ def paralellBigHands(minhand, maxhand, stones ,colors ,copies):
 
 
 if __name__ == '__main__':
-    #arg: minhand, maxhand, stones, colors, copies
-    #perfListWinningHands(3, 14, 13, 4, 2)
-    #listWinningHands(3, 16, 6, 4, 2)
-    #print(rummi.callRecCount(6, 13, 4, 2))
-    paralellBigHands(3, 10, 6, 4, 2)
+    minhand = 3
+    maxhand = 12
+    stones = 13
+    colors = 4
+    copies = 2
+    if len(argv) > 1:
+        minhand = int(argv[1])
+        maxhand = int(argv[2])
+        stones = int(argv[3])
+        colors = int(argv[4])
+        copies = int(argv[5])
+    paralellBigHands(minhand, maxhand, stones, colors, copies)
