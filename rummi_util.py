@@ -27,3 +27,11 @@ def findSubsets(s, leg):
 
 def placeValue(number): 
     return ("{:,}".format(number)) 
+
+def memoryUsage():
+    # return the memory usage in MB
+    import psutil
+    import os
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info()[0]
+    return mem

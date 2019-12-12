@@ -120,17 +120,22 @@ def perfCallRecCount(hand_size, nmax, k , m, cores):
     config = {stones:nmax, colors:k, copies:m, minimal_size:3}
     pool = mp.Pool(cores)
     tasks = createTaskList(config, hand_size)
+    peak_memory = 0
+    memory = 0
+    imapsol = set()
     #Calculation start
     start = default_timer()
-    imapsol = set()
     for ip in pool.imap_unordered(recursiveCount, tasks):
         for i in ip:
             imapsol.add(i)
+        memory = memoryUsage()
+        if  memory > peak_memory:
+            peak_memory = memory
     stop = default_timer()
     pool.close()
     pool.join()
     # Returns: Lengt of the solution set, time taken to calculate en storage size of the solution list
-    return [len(imapsol), round(stop - start,2)]
+    return [len(imapsol), round(stop - start,2), memory, peak_memory]
 
 # Wrapper for the recursive calls
 # No support for multicoreprocessing
