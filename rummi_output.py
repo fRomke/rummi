@@ -1,3 +1,5 @@
+from rummi_util import placeValue
+from time import time, localtime, strftime
 print_to_console = False
 print_to_file = False
 def outputTable(table,output):
@@ -25,6 +27,22 @@ def printTableToFile(table, file):
         file.write('\n')
     file.write('\n')
 
+def printTaskList(hand_size, task_len, cores):
+    mod = task_len % cores
+    print (task_len, "tasks will be mapped to", cores, "cores, for a hand size of", hand_size)
+    if mod < (cores/2) and mod != 0:
+        if mod == 1:
+            end = "core."
+        else:
+            end = "cores."
+        print("Core mapping not optimal, last run wil only use", mod, end)
+
+def printCurrentTask(memory, peak, task_len, task_count):
+    t = time()
+    curr_time = strftime('%H:%M', localtime(t))
+    task = "[" + str(task_count) + "/" + str(task_len) + "]"
+    print(task, curr_time, "- Memory usage:", placeValue(memory), "- Peak memory usage:", placeValue(peak))
+
 def writeSolutions(s):
     f = open("output_hashed.txt", "w")
     for l in list(s):
@@ -32,8 +50,6 @@ def writeSolutions(s):
     f.close()
 
 def writeResult(i, stones, colors, copies, cores, r):
-    from time import time, localtime, strftime
-    from rummi_util import placeValue
     t = time()
     line = strftime('%Y-%m-%d %H:%M', localtime(t)) + " - "
     line += "n" + str(stones) + "k" + str(colors) + "m" + str(copies) + "c" + str(cores) + "h - " + str(i) + " - "
@@ -42,3 +58,5 @@ def writeResult(i, stones, colors, copies, cores, r):
     out.write(line + '\n')
     out.close()
     return line
+
+printCurrentTask(40, 50, 185, 60)

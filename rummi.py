@@ -122,7 +122,9 @@ def perfCallRecCount(hand_size, nmax, k , m, cores):
     tasks = createTaskList(config, hand_size)
     peak_memory = 0
     memory = 0
+    task_count = 0
     imapsol = set()
+    printTaskList(hand_size, len(tasks), cores)
     #Calculation start
     start = default_timer()
     for ip in pool.imap_unordered(recursiveCount, tasks):
@@ -131,6 +133,8 @@ def perfCallRecCount(hand_size, nmax, k , m, cores):
         memory = memoryUsage()
         if  memory > peak_memory:
             peak_memory = memory
+        printCurrentTask(memory, peak_memory, len(tasks), task_count)
+        task_count += 1
     stop = default_timer()
     pool.close()
     pool.join()
