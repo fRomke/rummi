@@ -1,10 +1,13 @@
 class cRummikub:
     def __init__(self):
         self.inlist = []
+        self.outlist = []
+        self.matchlist = []
         # TODO build frank.cc
     
-    def appendGame(self, l):
+    def appendGame(self, summed, l):
         self.inlist.append(l)
+        self.matchlist.append(summed)
     
     def build(self, ifile, l):
         f = open(ifile, 'w')
@@ -21,9 +24,22 @@ class cRummikub:
                     stderr=subprocess.STDOUT)
         stdout,stderr = MyOut.communicate()
         result = stdout.decode("utf-8")
-        return result.split()
+        self.outlist = list(map(int, result.split()))
+        return self.outlist
 
     def buildAndRun(self, option):
         ifile = "in/1.in"
         self.build(ifile, self.inlist)
-        print(self.run(ifile))
+        return self.run(ifile)
+
+    def isWinning(self):
+        i = 0
+        resultlist = []
+        while i != len(self.matchlist):
+            if self.matchlist[i] == self.outlist[i]:
+                resultlist.append(True)
+            else:
+                resultlist.append(False)
+                print(i, "Match", self.matchlist[i], "Result", self.outlist[i])
+            i += 1
+        return resultlist
