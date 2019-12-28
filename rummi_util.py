@@ -1,11 +1,11 @@
 from itertools import combinations, chain
 
-def initTable(colors, stones):
+def initTable(colors, stones, value=0):
     col = []
     row = []
     for j in range(colors):
         for i in range(1, stones+1):
-            row.append(0)
+            row.append(value)
         col.append(row)
         row = []
     return col
