@@ -58,5 +58,3 @@ def writeResult(i, stones, colors, copies, cores, r):
     out.write(line + '\n')
     out.close()
     return line
-
-printCurrentTask(40, 50, 185, 60)
