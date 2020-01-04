@@ -1,10 +1,12 @@
 class cRummikub:
     import subprocess
     import multiprocessing as mp
-    def __init__(self):
+    import os
+    def __init__(self, c):
         self.inlist = []
         self.outlist = []
         self.matchlist = []
+        self.cores = c
         # TODO build frank.cc
     
     def __del__(self):
@@ -23,7 +25,6 @@ class cRummikub:
 
     def buildMP(self):
         from math import ceil
-        self.cores = self.mp.cpu_count()-1
         length = len(self.inlist)
         chunk = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
         self.partsMP = chunk(self.inlist, ceil(length / self.cores))
@@ -37,9 +38,8 @@ class cRummikub:
         self.outlist = list(chain(*result))
 
     def buildAndRun(self, l):
-        import os
-        print(os.getpid())
-        ifile = "in/" + str(os.getpid()) + ".in"
+        print(self.os.getpid())
+        ifile = "in/" + str(self.os.getpid()) + ".in"
         self.build(ifile, l)
         return self.run(ifile)
 
