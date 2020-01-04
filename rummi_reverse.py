@@ -44,7 +44,7 @@ def reverseCount(hand, stones, cores):
     df = pd.DataFrame(subsets_raw)
     df = df.drop_duplicates()
     subsets_unique = df.values.tolist()
-    print(len(subsets_unique))
+    print("Unique situations:", len(subsets_unique))
     #Parsing situations into the cR object
     cR = c_rummikub.cRummikub(cores)
     for each in subsets_unique:
@@ -53,7 +53,7 @@ def reverseCount(hand, stones, cores):
     #Running situations
     #cR.build("in/1.in", cR.inlist)
     r = cR.buildAndRunMP()
-    print(r.count(True))
+    print("Winning hands:", r.count(True))
 
 if __name__ == '__main__':
     stones = 6
@@ -68,7 +68,5 @@ if __name__ == '__main__':
     elif len(argv)>1 and len(argv) != 5:
         print("Invalid amount of arguments. Must be either none or 4.")
         quit()
-    minhand = 43
-    maxhand = 46
     for hand in reversed(range(minhand, maxhand+1)):
         reverseCount(hand, stones, cores)
