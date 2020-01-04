@@ -2,6 +2,10 @@ from rummi_util import initTable, copyTable
 from rummi_output import printTableToConsole
 from itertools import groupby, combinations
 import c_rummikub
+from sys import argv
+
+colors = 4
+copies = 2
 
 def findSubsets(inlist, size): 
     return list(map(list, combinations(inlist, size)))
@@ -28,23 +32,43 @@ def formatForFrank(tafel):
         stone = 1
     return l
 
-def deCall():
-    #Generating and sorting situations
-    table = initTable(4, 6, 2)
+def reverseCount(hand, stones, cores):
+    # Generating a startin table
+    table = initTable(colors, stones, copies)
+    # Format the table to be readable by frank.cc
     tablefrank = formatForFrank(table)
-    subsets_raw = findSubsets(tablefrank, len(tablefrank)-1)
-    subsets_unique = list(subsets_raw for subsets_raw,_ in groupby(subsets_raw))
-
-    #Parsing situations
-    cR = c_rummikub.cRummikub()
+    # Generating all subset of the table for a given hand
+    subsets_raw = findSubsets(tablefrank, hand)
+    # Removing all duplicate situations
+    import pandas as pd
+    df = pd.DataFrame(subsets_raw)
+    df = df.drop_duplicates()
+    subsets_unique = df.values.tolist()
+    print(len(subsets_unique))
+    #Parsing situations into the cR object
+    cR = c_rummikub.cRummikub(cores)
     for each in subsets_unique:
         summed, parsed = parseForFrank(each)
         cR.appendGame(summed, parsed)
     #Running situations
-    print(cR.buildAndRunMP())
+    #cR.build("in/1.in", cR.inlist)
+    r = cR.buildAndRunMP()
+    print(r.count(True))
 
-    print("Matchlist", cR.matchlist)
-    print("Output", cR.outlist)
-
-
-deCall()
+if __name__ == '__main__':
+    stones = 6
+    maxhand = stones * colors * copies
+    minhand = maxhand - 1
+    cores = 4
+    if len(argv) == 5:
+        maxhand = int(argv[1])
+        minhand = int(argv[2])
+        stones = int(argv[3])
+        cores = int(argv[4])
+    elif len(argv)>1 and len(argv) != 5:
+        print("Invalid amount of arguments. Must be either none or 4.")
+        quit()
+    minhand = 43
+    maxhand = 46
+    for hand in reversed(range(minhand, maxhand+1)):
+        reverseCount(hand, stones, cores)
