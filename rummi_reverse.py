@@ -37,24 +37,14 @@ def deCall():
 
     #Parsing situations
     cR = c_rummikub.cRummikub()
-    tempcount = 0
     for each in subsets_unique:
         summed, parsed = parseForFrank(each)
         cR.appendGame(summed, parsed)
-        # if(tempcount == 50):
-        #     break
-        # else:
-        #     tempcount += 1
     #Running situations
-    #cR.build("in/1.in", cR.inlist)
-    cR.buildMP()
-    #cR.run("in/1.in")
+    print(cR.buildAndRunMP())
+
     print("Matchlist", cR.matchlist)
     print("Output", cR.outlist)
-    #print(cR.isWinning())
-    # f = open("temp.txt", 'w')
-    # for each in subsets_unique:
-    #     f.write(str(each) + '\n')
-    # f.close()
+
 
 deCall()
