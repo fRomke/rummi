@@ -139,7 +139,7 @@ def perfCallRecCount(hand_size, nmax, k , m, cores):
     pool.close()
     pool.join()
     # Returns: Lengt of the solution set, time taken to calculate en storage size of the solution list
-    return [len(imapsol), round(stop - start,2), memory, peak_memory]
+    return [len(imapsol), round(stop - start,2), memory, "topdown"]
 
 # Wrapper for the recursive calls
 # No support for multicoreprocessing
