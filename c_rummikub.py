@@ -8,11 +8,18 @@ class cRummikub:
         self.matchlist = []
         self.cores = c
         # TODO build frank.cc
-    
-    def __del__(self):
-        #elf.subprocess.call(["ls", "in"])
-        #self.subprocess.call(["rm", "in/*.in"])
-        pass
+
+    def compileFrank(self):
+        MyOut = self.subprocess.Popen(["gcc", "-o", "frank", "frank.cc", "-lstdc++"], 
+                    stdout=self.subprocess.PIPE, 
+                    stderr=self.subprocess.STDOUT)
+        stdout,stderr = MyOut.communicate()
+        if stderr != None:
+            print(stderr)
+            print("Error compiling frank.cc please compile manually: gcc -o frank frank.cc -lstdc++")
+            quit()
+        else:
+            print("frank.cc compiled succesfully!")
 
     def appendGame(self, summed, l):
         self.inlist.append(l)
@@ -57,8 +64,9 @@ class cRummikub:
                     stderr=self.subprocess.STDOUT)
         stdout,stderr = MyOut.communicate()
         result = stdout.decode("utf-8")
-        self.outlist = list(map(int, result.split()))
-        return self.outlist
+        out = list(map(int, result.split()))
+        self.subprocess.call(["rm", ifile])
+        return out
 
     def isWinning(self):
         i = 0
@@ -68,6 +76,5 @@ class cRummikub:
                 resultlist.append(True)
             else:
                 resultlist.append(False)
-                print(i, "Match", self.matchlist[i], "Result", self.outlist[i])
             i += 1
         return resultlist
