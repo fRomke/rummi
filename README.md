@@ -14,8 +14,11 @@ To run use:
 5. Number of copies (c)
 6. Number of cores to be used
 
-You can also run the program without parameters: ./rummi_generator
-In that case the default parameters will be used; 3-10, 13 stones, 4 colors, 2 copies, 4 cores.
+You can also run the program without parameters: 
+```
+./rummi_generator
+```
+In that case the default parameters will be used; `3-10, 13 stones, 4 colors, 2 copies, 4 cores`.
 
 ## Bottom up
 To run use:
