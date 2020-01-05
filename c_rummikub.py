@@ -7,7 +7,14 @@ class cRummikub:
         self.outlist = []
         self.matchlist = []
         self.cores = c
-        # TODO build frank.cc
+        self.checkStructure()
+
+    def checkStructure(self):
+        import os.path
+        if not os.path.isdir("in"):
+            self.subprocess.call(["mkdir", "in"])
+        if not os.path.isfile("frank"):
+            self.compileFrank()
 
     def compileFrank(self):
         MyOut = self.subprocess.Popen(["gcc", "-o", "frank", "frank.cc", "-lstdc++"], 
