@@ -53,7 +53,7 @@ def writeResult(i, stones, colors, copies, cores, r):
     t = time()
     line = strftime('%Y-%m-%d %H:%M', localtime(t)) + " - "
     line += "n" + str(stones) + "k" + str(colors) + "m" + str(copies) + "c" + str(cores) + "h - " + str(i) + " - "
-    line += str(r[0]) + " - " + str(r[1]) + " - " + placeValue(r[2]) + " - " + placeValue(r[3])
+    line += str(r[0]) + " - " + str(r[1]) + " - " + placeValue(r[2]) + " - " + r[3]
     out = open('results.txt', 'a')
     out.write(line + '\n')
     out.close()
