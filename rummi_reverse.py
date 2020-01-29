@@ -47,7 +47,6 @@ def reverseCount(hand, stones, cores):
     df = df.drop_duplicates()
     print(df)
     #subsets_unique = df.values.tolist()
-    #print("Unique situations:", len(subsets_unique))
     #Parsing situations into the cR object
     cR = c_rummikub.cRummikub(cores)
     for each in df.values.tolist():
