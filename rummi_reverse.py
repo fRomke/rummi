@@ -40,14 +40,10 @@ def reverseCount(hand, stones, cores):
     # Format the table to be readable by frank.cc
     tablefrank = formatForFrank(table)
     # Generating all subset of the table for a given hand
-    #subsets_raw = findSubsets(tablefrank, hand)
     # Removing all duplicate situations
     import pandas as pd
     df = pd.DataFrame(combinations(tablefrank, hand))
     df = df.drop_duplicates()
-    print(df)
-    #subsets_unique = df.values.tolist()
-    #print("Unique situations:", len(subsets_unique))
     #Parsing situations into the cR object
     cR = c_rummikub.cRummikub(cores)
     for each in df.values.tolist():
