@@ -52,9 +52,9 @@ class cRummikub:
         # Create input list for own process
         f = open(ifile, 'a')
         f.write(str(len(input)) + '\n')
-        for table in input:
+        for table, multiplier in input:
             summed, assignment = self.parseForFrank(table)
-            sumlist.append(summed)
+            sumlist.append((summed, multiplier))
             f.write(str(assignment[0]) + '\n')
             f.write(str(assignment[1]) + '\n')
         f.close()
@@ -77,8 +77,8 @@ class cRummikub:
         i = 0
         true = 0
         while i != len(sumlist):
-            if sumlist[i] == output[i]:
-                true += 1
+            if sumlist[i][0] == output[i]:
+                true += sumlist[i][1]
             i += 1
         return true
 
