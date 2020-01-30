@@ -52,7 +52,8 @@ class cRummikub:
         # Create input list for own process
         f = open(ifile, 'a')
         f.write(str(len(input)) + '\n')
-        for table, multiplier in input:
+        while(input):
+            table, multiplier = input.pop(0)
             summed, assignment = self.parseForFrank(table)
             sumlist.append((summed, multiplier))
             f.write(str(assignment[0]) + '\n')
