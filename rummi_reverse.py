@@ -43,10 +43,10 @@ def reverseCount(hand, stones, colors, copies, cores):
     # Find unique subsets
     findSubsets(solutions, table, to_remove)
     subset = default_timer()
-    print("All possible subsets found. Time taken:", round(subset - init,2), "\nExecuting...")
+    print("Found", len(solutions), "possible subsets. Time taken:", round(subset - init,2), "\nExecuting...")
 
     # Execute the determined situations
-    result = cR.delegate(solutions)
+    result = None#cR.delegate(solutions)
     execution = default_timer()
     print("Execution done. Time taken:", round(subset - execution,2))
 
@@ -58,8 +58,8 @@ def reverseCount(hand, stones, colors, copies, cores):
 
 if __name__ == '__main__':
     stones = 6
-    maxhand = stones * colors * copies
-    minhand = 47#maxhand - 1
+    maxhand = 46
+    minhand = 46#maxhand - 1
     cores = 4
     if len(argv) == 5:
         maxhand = int(argv[1])
