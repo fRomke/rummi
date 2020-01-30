@@ -22,7 +22,7 @@ def findSubsets(solutions, reference, to_remove, i = 0):
                 findSubsets(solutions, copy[:], (to_remove - each), i+1)
             else:
                 solutions.append(copy)
-                if(len(solutions)%1000)
+                if(len(solutions)%1000):
                     print("Finding subsets milestone ", len(solutions%1000))
         i += 1
 
