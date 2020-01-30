@@ -17,6 +17,7 @@ class cRummikub:
             self.compileFrank()
 
     def compileFrank(self):
+        # TODO Use subprocess.call() maybe?
         MyOut = self.subprocess.Popen(["gcc", "-o", "frank", "frank.cc", "-lstdc++"], 
                     stdout=self.subprocess.PIPE, 
                     stderr=self.subprocess.STDOUT)
@@ -49,6 +50,7 @@ class cRummikub:
     def worker(self, input):
         ifile = "in/" + str(self.os.getpid()) + ".in"
         sumlist = []
+        # Create input list for own process
         f = open(ifile, 'a')
         f.write(str(len(input)) + '\n')
         for table in input:
@@ -57,13 +59,14 @@ class cRummikub:
             f.write(str(assignment[0]) + '\n')
             f.write(str(assignment[1]) + '\n')
         f.close()
+
         output = self.run(ifile)
         self.subprocess.call(["rm", ifile])
         winning = self.isWinning(output, sumlist)
         print(ifile, winning, len(sumlist))
 
     def run(self, ifile):
-        # TO DO Process results live.
+        # TODO Process results live.
         stdout = self.subprocess.check_output(["./frank", ifile])
         result = stdout.decode("utf-8")
         out = list(map(int, result.split()))
@@ -71,6 +74,7 @@ class cRummikub:
         return out
 
     def isWinning(self, output, sumlist):
+        # Returns number of results that match the maximum value
         i = 0
         true = 0
         while i != len(sumlist):
@@ -80,6 +84,8 @@ class cRummikub:
         return true
 
     def parseForFrank(self, table):
+        # Writes table in format that is readable for frank.cc
+        # and returns the potential maximum value
         s = ""
         summed = 0
         count = 0
