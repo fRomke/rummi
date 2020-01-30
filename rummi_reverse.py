@@ -22,6 +22,8 @@ def findSubsets(solutions, reference, to_remove, i = 0):
                 findSubsets(solutions, copy[:], (to_remove - each), i+1)
             else:
                 solutions.append(copy)
+                if(len(solutions)%1000)
+                    print("Finding subsets milestone ", len(solutions%1000))
         i += 1
 
 def reverseCount(cores = 7, stones = 7, colors = 4, copies = 2):
@@ -34,12 +36,18 @@ def reverseCount(cores = 7, stones = 7, colors = 4, copies = 2):
     # Generating a starting table
     table = initTable(colors, stones, copies)
     table = list(chain(*table))
+    init = default_timer()
+    print("Initialized. Time taken:", round(init - start,2))
 
     # Find unique subsets
     findSubsets(solutions, table, to_remove)
+    subset = default_timer()
+    print("All possible subsets found. Time taken:", round(subset - init,2))
 
     # Execute the determined situations
     result = cR.delegate(solutions)
+    execution = default_timer()
+    print("Execution done. Time taken:", round(subset - execution,2))
 
     # Finalizing
     stop = default_timer()
