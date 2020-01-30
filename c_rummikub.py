@@ -1,12 +1,12 @@
 class cRummikub:
     import subprocess
-    import multiprocessing as mp
+    import rummi_reverse
     import os
-    def __init__(self, c):
-        self.inlist = []
-        self.outlist = []
-        self.matchlist = []
+    def __init__(self, c, n, k, m):
         self.cores = c
+        self.stones = n
+        self.colors = k 
+        self.copies = m
         self.checkStructure()
 
     def checkStructure(self):
@@ -28,60 +28,72 @@ class cRummikub:
         else:
             print("frank.cc compiled succesfully!")
 
-    def appendGame(self, summed, l):
-        self.inlist.append(l)
-        self.matchlist.append(summed)
-
-    def buildAndRunMP(self):
-        self.buildMP()
-        self.runMP()
-        return self.isWinning()
-
-    def buildMP(self):
+    def delegate(self, input):
         from math import ceil
-        length = len(self.inlist)
+        print("Total length", len(input))
         chunk = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
-        self.partsMP = chunk(self.inlist, ceil(length / self.cores))
-        
-    def runMP(self):
-        from itertools import chain
-        pool = self.mp.Pool(self.cores)
-        result = pool.map(self.buildAndRun, self.partsMP)
+        input = chunk(input, ceil(len(input) / self.cores))
+        print("Parts", len(input[0]), len(input[-1]))
+
+        import multiprocessing as mp
+        pool = mp.Pool(self.cores)
+        result = pool.map(self.worker, input)
         pool.close()
         pool.join()
-        self.outlist = list(chain(*result))
+        sum_results = 0
+        for a in result:
+            sum_results += a
+        return sum_results
 
-    def buildAndRun(self, l):
-        print(self.os.getpid())
+
+    def worker(self, input):
         ifile = "in/" + str(self.os.getpid()) + ".in"
-        self.build(ifile, l)
-        return self.run(ifile)
-
-    def build(self, ifile, l):
-        f = open(ifile, 'w')
-        f.write(str(len(l)) + '\n')
-        for each in l:
-            f.write(str(each[0]) + '\n')
-            f.write(str(each[1]) + '\n')
-        f.close
+        sumlist = []
+        f = open(ifile, 'a')
+        f.write(str(len(input)) + '\n')
+        for table in input:
+            summed, assignment = self.parseForFrank(table)
+            sumlist.append(summed)
+            f.write(str(assignment[0]) + '\n')
+            f.write(str(assignment[1]) + '\n')
+        f.close()
+        output = self.run(ifile)
+        self.subprocess.call(["rm", ifile])
+        winning = self.isWinning(output, sumlist)
+        print(ifile, winning, len(sumlist))
 
     def run(self, ifile):
-        MyOut = self.subprocess.Popen(["./frank", ifile], 
-                    stdout=self.subprocess.PIPE, 
-                    stderr=self.subprocess.STDOUT)
-        stdout,stderr = MyOut.communicate()
+        # TO DO Process results live.
+        stdout = self.subprocess.check_output(["./frank", ifile])
         result = stdout.decode("utf-8")
         out = list(map(int, result.split()))
         self.subprocess.call(["rm", ifile])
         return out
 
-    def isWinning(self):
+    def isWinning(self, output, sumlist):
         i = 0
-        resultlist = []
-        while i != len(self.matchlist):
-            if self.matchlist[i] == self.outlist[i]:
-                resultlist.append(True)
-            else:
-                resultlist.append(False)
+        true = 0
+        while i != len(sumlist):
+            if sumlist[i] == output[i]:
+                true += 1
             i += 1
-        return resultlist
+        return true
+
+    def parseForFrank(self, table):
+        s = ""
+        summed = 0
+        count = 0
+        colors = ['b', 'g', 'r', 'y']
+        i_color = 0
+        stone = 1
+        for tile in table:
+            for j in range(tile):
+                summed += int(stone)
+                s += str(stone) + colors[i_color] + ' '
+                count += 1
+            if stone == self.stones:
+                stone = 1
+                i_color += 1
+            else:
+                stone += 1
+        return (summed, [count, s])

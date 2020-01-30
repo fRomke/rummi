@@ -1,64 +1,51 @@
-from rummi_util import initTable, copyTable, memoryUsage
-from rummi_output import printTableToConsole, writeResult
-from itertools import groupby, combinations
+from rummi_util import initTable, memoryUsage
+from rummi_output import writeResult
+from itertools import chain
 import c_rummikub
 from sys import argv
 from timeit import default_timer
 
 colors = 4
-copies = 2
+copies = 2 # ONLY WORKS FOR 2
 
-def findSubsets(inlist, size): 
-    return list(map(list, combinations(inlist, size)))
+def findSubsets(solutions, reference, to_remove, i = 0):
+    lenght = len(reference)
+    if to_remove > 1:
+        remove_options = range(1, copies+1)
+    else:
+        remove_options = [1]
+    while(i<lenght):
+        for each in remove_options:
+            copy = reference[:]
+            copy[i] = copy[i] - each
+            if to_remove - each != 0:
+                findSubsets(solutions, copy[:], (to_remove - each), i+1)
+            else:
+                solutions.append(copy)
+        i += 1
 
-def parseForFrank(l):
-    s = ""
-    summed = 0
-    for each in l:
-        summed += int(each[:-1])
-        s += each + ' '
-    return (summed, [len(l), s])
-
-def formatForFrank(tafel):
-    l = []
-    colors = ['b', 'g', 'r', 'y']
-    i_color = 0
-    stone = 1
-    for each in tafel:
-        for i in each:
-            for j in range(i):
-                l.append(str(stone) + colors[i_color])
-            stone += 1
-        i_color += 1
-        stone = 1
-    return l
-
-def reverseCount(hand, stones, cores):
+def reverseCount(cores = 7, stones = 7, colors = 4, copies = 2):
+    # Initialize variables
+    maxhand = stones * copies * colors
+    to_remove = maxhand - hand
     start = default_timer()
+    solutions = list()
+    cR = c_rummikub.cRummikub(cores, stones, colors, copies)
     # Generating a starting table
     table = initTable(colors, stones, copies)
-    # Format the table to be readable by frank.cc
-    tablefrank = formatForFrank(table)
-    # Generating all subset of the table for a given hand
-    #subsets_raw = findSubsets(tablefrank, hand)
-    # Removing all duplicate situations
-    import pandas as pd
-    df = pd.DataFrame(combinations(tablefrank, hand))
-    df = df.drop_duplicates()
-    print(df)
-    #subsets_unique = df.values.tolist()
-    #Parsing situations into the cR object
-    cR = c_rummikub.cRummikub(cores)
-    for each in df.values.tolist():
-        summed, parsed = parseForFrank(each)
-        cR.appendGame(summed, parsed)
-    #Running situations
-    #cR.build("in/1.in", cR.inlist)
-    r = cR.buildAndRunMP()
+    table = list(chain(*table))
+
+    # Find unique subsets
+    findSubsets(solutions, table, to_remove)
+
+    # Execute the determined situations
+    result = cR.delegate(solutions)
+
+    # Finalizing
     stop = default_timer()
     memory = memoryUsage()
-    print(writeResult(hand, stones, colors, copies, cores, [r.count(True), round(stop - start,2), memory, "botup"]))
-    print("Winning hands:", r.count(True))
+    print(writeResult(hand, stones, colors, copies, cores, [result, round(stop - start,2), memory, "botup"]))
+    print("Winning hands:", result)
 
 if __name__ == '__main__':
     stones = 6
