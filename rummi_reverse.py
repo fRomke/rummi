@@ -10,10 +10,11 @@ copies = 2 # ONLY WORKS FOR 2
 
 def findSubsets(solutions, reference, to_remove, i = 0):
     lenght = len(reference)
-    if to_remove > 1:
-        remove_options = range(1, copies+1)
-    else:
-        remove_options = [1]
+    if to_remove > 0:
+        remove_options = range(1, to_remove+1)
+    elif to_remove == 0:
+        solutions.append(reference)
+        return
     while(i<lenght):
         for each in remove_options:
             copy = reference[:]
@@ -78,7 +79,7 @@ def reverseCount(hand, stones, colors, copies, cores):
     start = default_timer()
     solutions = list()
     cR = c_rummikub.cRummikub(cores, stones, colors, copies)
-    print("Initializing. n", stones, "k", colors, "m", copies, "c", cores, "")
+    print("Initializing. n", stones, "k", colors, "m", copies, "c", cores, "h", hand)
     # Generating a starting table
     table = initTable(colors, stones, copies)
     table = list(chain(*table))
@@ -108,8 +109,8 @@ def reverseCount(hand, stones, colors, copies, cores):
 
 if __name__ == '__main__':
     stones = 6
-    maxhand = 45
-    minhand = 45#maxhand - 1
+    maxhand = 48
+    minhand = 46#maxhand - 1
     cores = 7
     if len(argv) == 5:
         maxhand = int(argv[1])

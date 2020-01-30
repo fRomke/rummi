@@ -32,8 +32,11 @@ class cRummikub:
     def delegate(self, input):
         from math import ceil
         print("Total length", len(input))
-        chunk = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
-        input = chunk(input, ceil(len(input) / self.cores))
+        if len(input) > 1:
+            chunk = lambda lst, sz: [lst[i:i+sz] for i in range(0, len(lst), sz)]
+            input = chunk(input, ceil(len(input) / self.cores))
+        else:
+            input = [input]
         print("Parts", len(input[0]), len(input[-1]))
 
         import multiprocessing as mp
