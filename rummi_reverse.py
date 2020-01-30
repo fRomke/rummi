@@ -22,27 +22,28 @@ def findSubsets(solutions, reference, to_remove, i = 0):
                 findSubsets(solutions, copy[:], (to_remove - each), i+1)
             else:
                 solutions.append(copy)
-                if(len(solutions)%1000):
-                    print("Finding subsets milestone ", len(solutions%1000))
+                if(len(solutions)%1000 == 0):
+                    print("Finding subsets milestone ", len(solutions))
         i += 1
 
-def reverseCount(cores = 7, stones = 7, colors = 4, copies = 2):
+def reverseCount(hand, stones, colors, copies, cores):
     # Initialize variables
     maxhand = stones * copies * colors
     to_remove = maxhand - hand
     start = default_timer()
     solutions = list()
     cR = c_rummikub.cRummikub(cores, stones, colors, copies)
+    print("Initializing. n", stones, "k", colors, "m", copies, "c", cores, "")
     # Generating a starting table
     table = initTable(colors, stones, copies)
     table = list(chain(*table))
     init = default_timer()
-    print("Initialized. Time taken:", round(init - start,2))
+    print("Initialized. Time taken:", round(init - start,2), "\nFinding subsets...")
 
     # Find unique subsets
     findSubsets(solutions, table, to_remove)
     subset = default_timer()
-    print("All possible subsets found. Time taken:", round(subset - init,2))
+    print("All possible subsets found. Time taken:", round(subset - init,2), "\nExecuting...")
 
     # Execute the determined situations
     result = cR.delegate(solutions)
@@ -69,4 +70,4 @@ if __name__ == '__main__':
         print("Invalid amount of arguments. Must be either none or 4.")
         quit()
     for hand in reversed(range(minhand, maxhand+1)):
-        reverseCount(hand, stones, cores)
+        reverseCount(hand, stones, colors, copies, cores)
