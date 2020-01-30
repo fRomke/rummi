@@ -46,7 +46,6 @@ class cRummikub:
             sum_results += a
         return sum_results
 
-
     def worker(self, input):
         ifile = "in/" + str(self.os.getpid()) + ".in"
         sumlist = []
@@ -61,9 +60,9 @@ class cRummikub:
         f.close()
 
         output = self.run(ifile)
-        self.subprocess.call(["rm", ifile])
         winning = self.isWinning(output, sumlist)
-        print(ifile, winning, len(sumlist))
+        print(ifile, winning, "/", len(sumlist))
+        return winning
 
     def run(self, ifile):
         # TODO Process results live.
