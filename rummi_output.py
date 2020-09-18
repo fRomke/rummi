@@ -16,7 +16,8 @@ def printTableToConsole(table):
         print(j)
     print('\n')
 
-def printTableToFile(table, file):
+def printTableToFile(table, filename):
+    file = open(filename, 'a')
     if table == False:
         print("false")
         return
@@ -26,6 +27,12 @@ def printTableToFile(table, file):
             file.write(' ')
         file.write('\n')
     file.write('\n')
+    file.close()
+
+def printListToFile(list, filename):
+    file = open(filename, 'a')
+    file.writelines(list)
+    file.close()
 
 def printTaskList(hand_size, task_len, cores):
     mod = task_len % cores
