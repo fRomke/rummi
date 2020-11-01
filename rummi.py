@@ -31,7 +31,9 @@ def placeRun(cfg, table, i, row, run_size):
 
 #Returns all possible group combinations that are allowed to be put on the table; returns false when it fails
 def determinePossibleGroups(cfg, table, col, group_size): #444
-    group_list = [0,1,2,3]
+    # TODO Untested variable group size
+    group_list = list(range(0,cfg[colors]))
+    #group_list = [0,1,2,3]
     for i in range(cfg[colors]):
         if table[i][col] == cfg[copies]:
             group_list.remove(i)
