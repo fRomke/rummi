@@ -45,7 +45,7 @@ def placeRun(cfg, table, i, row, run_size):
             return False
         else:
             table[row][each + i] += 1
-    return table
+    return True
 
 #Returns all possible group combinations that are allowed to be put on the table; returns false when it fails
 def determinePossibleGroups(cfg, table, col, remaining_hand): #444
@@ -82,18 +82,38 @@ def placeGroup(table, col, group):
         table[i][col] += 1
     return table
 
+#Determines if there is even enough space to lay all the tiles on table from the given position
+#The odds of this functions returning True will be bigger towards the end of the algorithm
+def countFit(cfg, table, row, col, remaining_hand):
+    table2 = list(chain(*table))
+    i = row * cfg[stones] + col
+    count = 0
+    for k in range(i, len(table2)):
+        if table2[k] == 1:
+            count = count + 1
+        elif table2[k] == 0:
+            count = count + 2
+    if remaining_hand > count:
+        #print(remaining_hand, count, True, k)
+        return False
+    else:
+        #print(remaining_hand, count, False, k)
+        return True
+
 #i: index for where to continue looping in the table
 #on_row: index for what row on the table; when negative we are looping on columns with i as index
 def recursiveCount(args):
-    row_index, column_index, remaining_hand, table, solutions, cfg = args
+    bak_row_index, bak_column_index, remaining_hand, table, solutions, cfg = args
     if table == False:
         return solutions
     elif remaining_hand == 0:
-        printTableToFile(table, "table2.txt")
         solutions.add(hashTable(table))
+        #printTableToFile(table, "table2.txt")
         return solutions
     else:
         #Columns
+        row_index = bak_row_index
+        column_index = bak_column_index
         if row_index == -1:
             while column_index != cfg[stones]:
                 options = determinePossibleGroups2(cfg, table, column_index, remaining_hand)
@@ -107,35 +127,44 @@ def recursiveCount(args):
                                         solutions,
                                         cfg])
                 column_index += 1
+            bak_row_index = 0
+            bak_column_index = 0
         #Rows
-        row_index = 0
-        column_index = 0
         options = determinePossibleRuns(cfg, remaining_hand, cfg[minimal_size])
-        for option in options:
-            while row_index < cfg[colors]:
-                while (cfg[stones] - column_index) >= option:
-                    solutions = recursiveCount(
+        for option in options:#for all options
+            row_index = bak_row_index
+            column_index = bak_column_index
+            while row_index < cfg[colors]: #for all rows
+                while (cfg[stones] - column_index) >= option: #option fits on current row
+                    counted_fit = countFit(cfg, table, row_index, column_index, remaining_hand)
+                    placed_run_table = copyTable(table)
+                    placed_run = placeRun(cfg, placed_run_table, column_index, row_index, option)
+                    if (counted_fit & placed_run):
+                        #printTableToFile(table, "table2.txt")
+                        solutions = recursiveCount(
                                     [row_index, 
                                     column_index, 
                                     remaining_hand - option, 
-                                    placeRun(cfg, copyTable(table), column_index, row_index, option), 
+                                    placed_run_table, 
                                     solutions,
                                     cfg])
                     column_index += 1
                 column_index = 0
                 row_index += 1
-            row_index = 0
         return solutions
 
 
-config = {stones:7, colors:4, copies:2, minimal_size:3}
-for i in range(3, 12):
-    resultrummi = (rummi.recursiveCount([0 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
-    resultalgo2 = (recursiveCount([-1 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
-    if(len(resultalgo2) != len(resultrummi)):
-        print(sorted(resultrummi.difference(resultalgo2)),i, len(resultalgo2), len(resultrummi))
-    else:
-        print("true ",i, len(resultalgo2))
+config = {stones:6, colors:3, copies:2, minimal_size:3}
+tafell = initTable(config[colors], config[stones], 0)
+print(len(recursiveCount([-1 , 0 , 33, initTable(config[colors], config[stones]), set(), config])))
+print(len(rummi.recursiveCount([0 , 0 , 33, initTable(config[colors], config[stones]), set(), config])))
+# for i in range(3, 3):
+#     resultrummi = (rummi.recursiveCount([0 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
+#     resultalgo2 = (recursiveCount([-1 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
+#     if(len(resultalgo2) != len(resultrummi)):
+#         print(sorted(resultrummi.difference(resultalgo2)),i, len(resultalgo2), len(resultrummi))
+#     else:
+#         print("true ",i, len(resultalgo2))
 
 
 
