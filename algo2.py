@@ -1,7 +1,6 @@
 #algo2.0
 from rummi_output import *
 from rummi_util import *
-import multiprocessing as mp
 from timeit import default_timer
 import rummi as rummi
 from sys import argv
