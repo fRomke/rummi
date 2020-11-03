@@ -48,19 +48,6 @@ def placeRun(cfg, table, i, row, run_size):
     return True
 
 #Returns all possible group combinations that are allowed to be put on the table; returns false when it fails
-def determinePossibleGroups(cfg, table, col, remaining_hand): #444
-    # TODO Remaining hand support
-    group_list = list(range(colors))
-    print(group_list)
-    for i in range(cfg[colors]):
-        if table[i][col] == cfg[copies]:
-            group_list.remove(i)
-    if len(group_list) < cfg[minimal_size]:
-        return False
-    else:
-        group_list = findSubsets(group_list, group_size)
-        return group_list
-
 def determinePossibleGroups2(cfg, table, col, remaining_hand): #444
     # TODO Remaining hand support
     group_list = list(range(cfg[colors]))
@@ -152,78 +139,3 @@ def recursiveCount(args):
                 column_index = 0
                 row_index += 1
         return solutions
-
-
-config = {stones:6, colors:3, copies:2, minimal_size:3}
-tafell = initTable(config[colors], config[stones], 0)
-print(len(recursiveCount([-1 , 0 , 33, initTable(config[colors], config[stones]), set(), config])))
-print(len(rummi.recursiveCount([0 , 0 , 33, initTable(config[colors], config[stones]), set(), config])))
-# for i in range(3, 3):
-#     resultrummi = (rummi.recursiveCount([0 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
-#     resultalgo2 = (recursiveCount([-1 , 0 , i, initTable(config[colors], config[stones]), set(), config]))
-#     if(len(resultalgo2) != len(resultrummi)):
-#         print(sorted(resultrummi.difference(resultalgo2)),i, len(resultalgo2), len(resultrummi))
-#     else:
-#         print("true ",i, len(resultalgo2))
-
-
-
-# Lists all recursive function calls for the first level of recursion. 
-# This can be easily return 
-def createTaskList(cfg, hand_size):
-    table = initTable(cfg[colors], cfg[stones])
-    options = determinePossibleRuns(cfg, hand_size, cfg[minimal_size])
-    on_rows = list(range(0,cfg[colors]))
-    on_rows.append(-1)
-    tasks = []
-    for option in options:
-        for on_row in on_rows:
-            #Task list for rows
-            if on_row == -1 and option <= cfg[colors] :
-                for i in range(0, cfg[stones]):
-                    for g in determinePossibleGroups(cfg, table, i, option):
-                        tasks.append([on_row, i, hand_size-option, (placeGroup(copyTable(table), i, g)), set() , cfg])
-            #Tasklist for columns
-            elif on_row != -1 and option <= 5:
-                for i in range(0,cfg[stones]-option+1):
-                    tasks.append([on_row, i, hand_size-option, placeRun(cfg, copyTable(table), i, on_row, option), set(),cfg])
-    return tasks
-
-# Wrapper for the recursive calls
-# Support for multicoreprocessing
-def perfCallRecCount(hand_size, nmax, k , m, cores):
-    #initializing vars
-    config = {stones:nmax, colors:k, copies:m, minimal_size:3}
-    pool = mp.Pool(cores)
-    tasks = createTaskList(config, hand_size)
-    peak_memory = 0
-    memory = 0
-    task_count = 0
-    imapsol = set()
-    printTaskList(hand_size, len(tasks), cores)
-    #Calculation start
-    start = default_timer()
-    for ip in pool.imap_unordered(recursiveCount, tasks):
-        for i in ip:
-            imapsol.add(i)
-        memory = memoryUsage()
-        if  memory > peak_memory:
-            peak_memory = memory
-        printCurrentTask(memory, peak_memory, len(tasks), task_count)
-        task_count += 1
-    stop = default_timer()
-    pool.close()
-    pool.join()
-    # Returns: Lengt of the solution set, time taken to calculate en storage size of the solution list
-    return [len(imapsol), round(stop - start,2), memory, "topdown"]
-
-# Wrapper for the recursive calls
-# No support for multicoreprocessing
-def callRecCount(hand_size, nmax, k , m):
-    config = {stones:nmax, colors:k, copies:m, minimal_size:3}
-    table = initTable(colors, stones)
-    solutions = set()
-    start = default_timer()
-    solutions = recursiveCount([0,0, hand_size, table, solutions, config])
-    stop = default_timer()
-    return (len(solutions), round(stop - start,2))
