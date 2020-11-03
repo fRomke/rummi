@@ -4,6 +4,7 @@ from rummi_util import *
 import multiprocessing as mp
 from timeit import default_timer
 import rummi as rummi
+from sys import argv
 
 stones = "stones"
 colors = "colors"
@@ -139,3 +140,25 @@ def recursiveCount(args):
                 column_index = 0
                 row_index += 1
         return solutions
+
+if __name__ == '__main__':
+    minhand = 3
+    maxhand = 10
+    #cores = 4
+    config = {stones:6, colors:4, copies:2, minimal_size:3}
+    if len(argv) == 7:
+        minhand = int(argv[1])
+        maxhand = int(argv[2])
+        config[stones] = int(argv[3])
+        config[colors] = int(argv[4])
+        config[copies] = int(argv[5])
+        #cores = int(argv[6])
+    elif len(argv)>1 and len(argv) != 7:
+        print("Invalid amount of arguments. Must be either none or six.")
+        quit()
+    for s in range(minhand,maxhand+1):
+        start2 = default_timer()
+        sol = recursiveCount([-1 , 0 , s, initTable(config[colors], config[stones]), set(), config])
+        stop2 = default_timer()
+        r = [len(sol), round(stop2 - start2,2), 0, "countfit"]
+        print(writeResult(s, config[stones], config[colors], config[copies], 1, r))
